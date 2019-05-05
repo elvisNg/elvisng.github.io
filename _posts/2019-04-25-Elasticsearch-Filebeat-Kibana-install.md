@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Elasticsearch-Filebeat-Kibana"
+title: "Elasticsearch-Filebeat-Kibana-Install"
 subtitle: '组内技术分享'
 author: "Elvis"
 header-style: text
