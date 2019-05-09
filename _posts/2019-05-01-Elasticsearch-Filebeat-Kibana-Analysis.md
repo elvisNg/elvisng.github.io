@@ -11,244 +11,103 @@ tags:
   - 组内技术分享
 ---
 
-### Elasticsearch Pipeline 预处理
+# Elasticsearch Analysis
 
-Pipeline和java中的Stream进行类比,两者从功能和概念上很类似,我们经常会对Stream中的数据进行处理,比如map操作,peek操作,reduce操作,count操作等,这些操作从行为上说,就是对数据的加工,而Pipeline也是如此,Pipeline也会对通过该Pipeline的数据(一般来说是文档)进行加工,比如,修改文档的某个字段值,修改文档某个字段的类型等等.而Elasticsearch对该加工行为进行抽象包装,并称之为Processors.Elasticsearch命名了多种类型的Processors来规范对文档的操作,比如set,append,date,join,json,kv等等.不同类型的Processors。
+#### ES集群构成
+一个Elasticsearch集群(下面简称ES集群)是由许多节点(Node)构成。
 
-**Pipeline定义**
+Node可以有不同的类型,四种不同类型的Node是一个node.master和node.data的true/false的两两组合。
 
-<pre name="code" class="c++"> 
-PUT _ingest/pipeline/helloworld
-{
-  "description" : "describe pipeline set hello to world",
-  "processors" : [
-    {
-      "set" : {
-        "field": "hello",
-        "value": "world"
-      }
-    }
-  ]
+当node.master为true时，其表示这个node是一个master的候选节点，可以参与选举，在ES的文档中常被称作master-eligible node，类似于MasterCandidate。ES正常运行时只能有一个master(即leader)，多于1个时会发生脑裂。
+
+当node.data为true时，这个节点作为一个数据节点，会存储分配在该node上的shard的数据并负责这些shard的写入、查询等。
+
+此外，任何一个集群内的node都可以执行任何请求，其会负责将请求转发给对应的node进行处理，所以当node.master和node.data都为false时，这个节点可以作为一个类似proxy的节点，接受请求并进行转发、结果聚合等。
+
+
+![](/img/in-post/cluster-demo.png)
+
+图1-1
+
+
+上图是一个ES集群的示意图，其中Node_A是当前集群的Master，Node_B和Node_C是Master的候选节点，其中Node_A和Node_B同时也是数据节点(DataNode)，此外，Node_D是一个单纯的数据节点，Node_E是一个proxy节点。
+
+#### 节点发现
+
+Node启动后，首先要通过节点发现功能加入集群。ZenDiscovery是ES自己实现的一套用于节点发现和选主等功能的模块，没有依赖Zookeeper等工具，
+
+[官方ZenDiscovery](https://www.elastic.co/guide/en/elasticsearch/reference/6.2/modules-discovery-zen.html)
+
+
+简单来说，节点发现依赖以下配置：
+
+conf/elasticsearch.yml:
+
+>   discovery.zen.ping.unicast.hosts: [1.1.1.1, 1.1.1.2, 1.1.1.3]
+
+这个配置可以看作是，在本节点到每个hosts中的节点建立一条边，当整个集群所有的node形成一个连通图(如图1-1)时，所有节点都可以知道集群中有哪些节点，不会形成孤岛。
+
+
+#### Master选举
+
+**master选举谁发起，什么时候发起**
+
+ES采用了常见的分布式系统思路，保证选举出的master被多数派(quorum)的master-eligible node认可，以此来保证只有一个master。这个quorum通过以下配置进行配置：
+
+conf/elasticsearch.yml:
+>   discovery.zen.minimum_master_nodes: 2
+
+master选举是由master-eligible节点发起，当一个master-eligible节点发现满足以下条件时发起选举：
+
+* 该master-eligible节点的当前状态不是master。
+* 该master-eligible节点通过ZenDiscovery模块的ping操作询问其已知的集群其他节点，没有任何节点连接到master。
+* 包括本节点在内，当前已有超过minimum_master_nodes个节点没有连接到master。
+
+*总结一句话，即当一个节点发现包括自己在内的多数派的master-eligible节点认为集群没有master时，就可以发起master选举。*
+
+
+**当需要选举master时，选举谁**
+
+选举的是排序后的第一个MasterCandidate(即master-eligible node)。
+
+```
+  public MasterCandidate electMaster(Collection<MasterCandidate> candidates) {
+    assert hasEnoughCandidates(candidates);
+    List<MasterCandidate> sortedCandidates = new ArrayList<>(candidates);
+    sortedCandidates.sort(MasterCandidate::compare);
+    return sortedCandidates.get(0);
 }
-</pre>
+```
+排序方法如下源码所示
 
-上面的例子,表明通过指定的URL请求"_ingest/pipeline"定义了一个ID为"my-pipeline-id"的pipeline,其中请求体中的存在两个必须要的元素:
+```
+public static int compare(MasterCandidate c1, MasterCandidate c2) {
 
-* description 描述该pipeline是做什么的
-* processors 定义了一系列的processors,这里只是简单的定义了一个赋值操作,即将字段名为"hello"的字段值都设置为"world"
+// we explicitly swap c1 and c2 here. the code expects "better" is lower in a sorted
+// list, so if c2 has a higher cluster state version, it needs to come first.
 
-**Grok Processor**
+int ret = Long.compare(c2.clusterStateVersion, c1.clusterStateVersion);
 
-<pre name="code" class="c++"> 
-  {  
-        "grok": {  
-          "field": "forwardedFor",  
-          "patterns": [  
-            "%{TOKEN:directRemoteAddress}"  
-          ],  
-          "pattern_definitions": {  
-            "TOKEN": "[.0-9]+$"  
-          },  
-          "ignore_failure": true  
-        }  
-  }
-</pre>
-
-上面的例子，field的值是要处理的字段名称。patterns是匹配的表达式，返回的是第一个匹配的值。以上两个字段都是Grok Processor必须的。
-pattern_definitions是匹配的value重新定义的值，ignore_failure此字段若为true，若field为空或者不存在则会不修改退出此document。
-
-**Gsub Processor**
-
-<pre name="code" class="c++"> 
-  {
-        "gsub": {
-          "field": "forwardedFor",
-          "pattern": ",",
-          "replacement": ", "
-        }
-  }
-</pre>
-
-Gsub Processor能够解决一些字符串中才特有的问题,比如我想把字符串格式的日期格式如"yyyy-MM-dd HH:mm:ss"转换成"yyyy/MM/dd HH:mm:ss"
-的格式,我们可以借助于Gsub Processor来解决,而Gsub Processor也正是利用正则来完成这一任务的。
-
-**Date Index Name Processor**
-
-<pre name="code" class="c++"> 
- {
-        "date_index_name": {
-          "field": "@timestamp",
-          "index_name_prefix": "splog-access-authgate-",
-          "index_name_format": "yyyy.MM.dd",
-          "date_rounding": "d",
-          "timezone": "Asia/Shanghai",
-          "ignore_failure": true
-        }
-  }
-</pre>
-
-Date Index Name Processor是日期索引处理器。我们写入的文档可以根据其中的某个日期格式的字段来指定该文档将写入哪个索引中,该功能配上template,
-能够实现很强大的日志收集功能,比如上面的例子就是按天来将日志写入Elasticsearch。
-
-**Date Processor**
-
-<pre name="code" class="c++"> 
- {
-        "date": {
-          "field": "datestamp",
-          "target_field": "@timestamp",
-          "formats": [
-            "yyyy-MM-dd HH:mm:ss.SSS",
-            "ISO8601"
-          ],
-          "timezone": "Asia/Shanghai",
-          "ignore_failure": true
-        }
-  }
-</pre>
-
-就是将原有的字符串表示的日期格式进行格式转换(最终转换成的是ISO时间格式)。
-
-**Remove Processor**
-
-<pre name="code" class="c++"> 
- {
-        "remove": {
-          "field": "message"
-        }
- }
-</pre>
-
-在经过Remove Processor处理后,message字段将不存在了。
-
-以上只是常用的Processors，若要查看更多，可以参考[ProcessorsAPI](https://www.elastic.co/guide/en/elasticsearch/reference/current/ingest-processors.html)
-
-
-
-### Elasticsearch 查询示例
-
-**多字段匹配查询**
-
-<pre name="code" class="json"> 
-{
-    "query": {
-        "multi_match" : {
-            "query" : "127.0.0.1:8080",
-            "fields" : ["orgHost","host"]
-        }
-    }
+if (ret == 0) {
+    ret = compareNodes(c1.getNode(), c2.getNode());
 }
-</pre>
-注：一次查找中查询多个字段。
-
-
-**子句灵活匹配查询**
-<pre name="code" class="json"> 
-{
-  "bool": {
-    "should": [
-      { "term": { "orgHost": "127.0.0.1:8080"}},
-      { "term": { "orgHost": "172.16.1.220:8080"}},
-      { "term": { "orgHost": "192.168.1.1:8080"}}
-    ],
-    "minimum_should_match": 2
-  }
+return ret;
 }
-</pre>
-
-注：minimum_should_match 还可以使用百分比 如："minimum_should_match": "75%"，但值 75% 会被截断成 2 。即三条 should 语句中至少有两条必须匹配。
-
-
-**布尔查询**
-<pre name="code" class="json"> 
-{
-    "query": {
-        "bool": {
-            "must": {
-                "bool" : { "should": [
-                      { "match": { "orgHost": "127.0.0.1:8080" }},
-                      { "match": { "orgHost": "172.16.1.220:8080" }}
-                ]}
-            },
-            "must": { "match": { "statusCode": "200" }},
-            "must_not": { "match": {"statusCode": "500" }}
-        }
-    }
-}
-</pre>
-注：可以创建任意复杂的或者深度嵌套的查询。
+```
+注：根据节点的clusterStateVersion比较，clusterStateVersion越大，优先级越高。(clusterStateVersion高代表节点越早加入)。clusterStateVersion相同时，进入compareNodes，其内部按照节点的Id比较(Id为节点第一次启动时随机生成)。
 
 
 
-**字段名模糊匹配查询**
 
-<pre name="code" class="json"> 
-{
-    "query": {
-        "multi_match" : {
-            "query" : "127.0.0.1:8080",
-            "fields" : ["*rgHost"]
-        }
-    }
-}
-</pre>
-注：模糊给出字段名，多匹配字段查找。
+## ES分布式的数据一致性问题
 
-**通配符查询**
+ES 数据并发冲突控制基于的乐观锁和版本号的机制
+一个document第一次创建的时候，它的_version内部版本号就是1；以后，每次对这个document执行修改或者删除操作，都会对这个_version版本号自动加1；
+哪怕是删除，也会对这条数据的版本号加1(假删除)。
+客户端对es数据做更新的时候，如果带上了版本号，那带的版本号与es中文档的版本号一致才能修改成功，否则抛出异常。如果客户端没有带上版本号，首先会
+读取最新版本号才做更新尝试，这个尝试类似于CAS操作，可能需要尝试很多次才能成功。
 
-<pre name="code" class="json"> 
-{
-    "query": {
-        "wildcard" : {
-           "orgPathName":"/ebus/*"
-        }
-    }
-}
-</pre>
-注：通配符查询允许你指定匹配的模式，？ 匹配任何字符，*匹配零个或多个字符
+es节点更新之后会向副本节点同步更新数据(同步写入)，直到所有副本都更新了才返回成功。
 
 
-**正则查询**
-
-<pre name="code" class="json"> 
-{
-    "query": {
-        "regexp" : {
-           "email":"^[\w.\-]+@(?:[a-z0-9]+(?:-[a-z0-9]+)*\.)+[a-z]{2,3}$"
-        }
-    }
-}
-</pre>
-
-**范围查询**
-
-<pre name="code" class="json"> 
-{
-  "query": {
-    "range": {
-      "second": {
-        "gte": "2019-05-01 19:53:41",
-        "lte": "2019-05-01 19:54:41"
-      }
-    }
-  }
-}
-</pre>
-
-
-**过滤查询**
-
-<pre name="code" class="json"> 
-{
-  "query": {
-    "filtered": {
-        "filter": {
-            "must": { "match": { "statusCode": "200" }},
-            "must_not": { "match": {"statusCode": "500" }}
-        }
-    }
-  }
-}
-</pre>
-
-以上只是常用的Elasticsearch查询，若要查看更多，可以参考[Elasticsearch深入搜素](https://www.elastic.co/guide/cn/elasticsearch/guide/current/search-in-depth.html)
+#有更有趣的学习工作完成，笔记暂停。

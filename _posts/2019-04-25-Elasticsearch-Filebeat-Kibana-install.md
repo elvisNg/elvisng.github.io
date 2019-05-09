@@ -29,9 +29,9 @@ tags:
 >path.data: /var/lib/elasticsearch<br>
 path.logs: /var/log/elasticsearch<br>
 http.port: 9200<br>
-cluster.name: log-efk<br>
-node.name: tif-1-192.168.0.1<br>
-network.host: 192.168.0.1 <br>
+cluster.name: log-efk //加入的集群名称  
+node.name: tif-1-192.168.0.1 //节点名称  
+network.host: 192.168.0.1 //节点路径  
 discovery.zen.ping.unicast.hosts: ["192.168.0.1"]<br>
 bootstrap.system_call_filter: false*「因为Centos6不支持SecComp」"[详情](https://github.com/elastic/elasticsearch/issues/22899/)"<br>
 bootstrap.memory_lock: true*「防止es内存被swap」*<br>
