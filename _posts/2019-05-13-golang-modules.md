@@ -10,22 +10,72 @@ tags:
   - 模块管理
 ---
 
+### 首先先来个小例子说明问题：
+
+**准备工作**  
+1、升级golang 版本到 1.12 Go下载  
+2、添加环境变量 GO111MODULE 为 on 或者auto  
+3、GO111MODULE=auto  
+准备完毕，非常简单吧！！
+
+#### 首先尝试创建一个hello项目演示GoModule
+
+ 首先，在$GOPATH/src路径外的你喜欢的地方创建一个目录，cd 进入目录，新建一个hello.go文件，内容如下
+
+```
+package main
+
+import "github.com/astaxie/beego"
+import "mytest v0.0.0"
+
+func main() {
+    beego.Run()
+}
+
+```
+
+按照过去的做法，要运行hello.go需要执行go get 命令 下载beego包到 $GOPATH/src
+
+**但是，使用了新的包管理就不在需要这样做了**
+
+先初始化模块 
+>go mod init
+
+再直接
+>go run hello.go
+
+稍等片刻… go 会自动查找代码中的包，下载依赖包，并且把具体的依赖关系和版本写入到go.mod和go.sum文件中。
+查看go.mod，它会变成这样：
+
+```
+module hello
+
+go 1.12
+
+require github.com/astaxie/beego v1.11.1
+
+```
+*go.mod*文件的*require*关键字是引用，后面是包，最后*v1.11.1*是引用的版本号，然后*replace*处是替换本地依赖包(路径要处理妥当)的引用
+
+
+**下面分析下GO-1.11版本主要的更新：**  
+
 ### 之前版本的诟病
 
-1.在不使用额外的工具的情况下，Go的依赖包需要手工下载，
-2.第三方包没有版本的概念，如果第三方包的作者做了不兼容升级，会让开发者很难受
-3.协作开发时，需要统一各个开发成员本地$GOPATH/src下的依赖包
-4.引用的包引用了已经转移的包，而作者没改的话，需要自己修改引用。
-5.第三方包和自己的包的源码都在src下，很混乱。对于混合技术栈的项目来说，目录的存放会有一些问题
-6.众所周知的原因，类似于 golang.org/x/... 的包会出现下载失败的情况。
+1.在不使用额外的工具的情况下，Go的依赖包需要手工下载  
+2.第三方包没有版本的概念，如果第三方包的作者做了不兼容升级，会让开发者很难受  
+3.协作开发时，需要统一各个开发成员本地$GOPATH/src下的依赖包  
+4.引用的包引用了已经转移的包，而作者没改的话，需要自己修改引用。  
+5.第三方包和自己的包的源码都在src下，很混乱。对于混合技术栈的项目来说，目录的存放会有一些问题  
+6.众所周知的原因，类似于 golang.org/x/... 的包会出现下载失败的情况。  
 
 ### Modules解决问题
-1.自动下载依赖包
-2.项目不必放在GOPATH/src内了
-3.项目内会生成一个go.mod文件，列出包依赖
-4.所以来的第三方包会准确的指定版本号
-5.对于已经转移的包，可以用replace 申明替换，不需要改代码
-6.新增GOPROXY解决代理镜像问题
+1.自动下载依赖包  
+2.项目不必放在GOPATH/src内了  
+3.项目内会生成一个go.mod文件，列出包依赖  
+4.所以来的第三方包会准确的指定版本号  
+5.对于已经转移的包，可以用replace 申明替换，不需要改代码  
+6.新增GOPROXY解决代理镜像问题  
 
 
 
@@ -134,45 +184,7 @@ GOPROXY=https://athens.azurefd.net go build/run/test/get ${params}
 
 ```
 
-#### 最后尝试创建一个hello项目演示GoModule
 
- 首先，在$GOPATH/src路径外的你喜欢的地方创建一个目录，cd 进入目录，新建一个hello.go文件，内容如下
-
-```
-package main
-
-import "github.com/astaxie/beego"
-import "mytest v0.0.0"
-
-func main() {
-    beego.Run()
-}
-
-```
-
-按照过去的做法，要运行hello.go需要执行go get 命令 下载beego包到 $GOPATH/src
-
-**但是，使用了新的包管理就不在需要这样做了**
-
-先初始化模块 
->go mod init
-
-再直接
->go run hello.go
-
-稍等片刻… go 会自动查找代码中的包，下载依赖包，并且把具体的依赖关系和版本写入到go.mod和go.sum文件中。
-查看go.mod，它会变成这样：
-
-```
-module hello
-
-go 1.12
-
-require github.com/astaxie/beego v1.11.1
-
-```
-*go.mod*文件的*require*关键字是引用，后面是包，最后*v1.11.1*是引用的版本号，然后*replace*处是替换本地依赖包(路径要处理妥当)的引用
-```
 ---
 
 #思考的两个问题：
