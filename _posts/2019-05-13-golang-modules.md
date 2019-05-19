@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "golang-1.1-modules-再见GoPATH"
+title: "golang-1.11-modules-再见GoPATH"
 subtitle: '技术迭代'
 author: "Elvis"
 header-style: text
@@ -9,8 +9,6 @@ tags:
   - Modules
   - 模块管理
 ---
-
-# golang-1.11版本 -Modules 模块管理
 
 ### 之前版本的诟病
 
@@ -30,7 +28,7 @@ tags:
 6.新增GOPROXY解决代理镜像问题
 
 
-### 举个HelloWorld演示一下
+**尝试创建一个hello项目**
 
  首先，在$GOPATH/src路径外的你喜欢的地方创建一个目录，cd 进入目录，新建一个hello.go文件，内容如下
 
@@ -50,9 +48,11 @@ func main() {
 
 **但是，使用了新的包管理就不在需要这样做了**
 
-先初始化模块 go mod init
+先初始化模块 
+>go mod init
 
-再直接 go run hello.go
+再直接
+>go run hello.go
 
 稍等片刻… go 会自动查找代码中的包，下载依赖包，并且把具体的依赖关系和版本写入到go.mod和go.sum文件中。
 查看go.mod，它会变成这样：
@@ -67,7 +67,7 @@ require github.com/astaxie/beego v1.11.1
 ```
 *go.mod*文件的*require*关键字是引用，后面是包，最后*v1.11.1*是引用的版本号，然后*replace*处是替换本地依赖包(路径要处理妥当)的引用
 
-### Modules是如何解决上文的诟病问题的。
+***Modules是如何解决上文的诟病问题的。***
 
 
 #### 问题一：依赖的包自动下载到哪里了
@@ -76,7 +76,7 @@ require github.com/astaxie/beego v1.11.1
 
 如果你成功运行了上面示例，可以在您的$GOPATH/pkg/mod 下找到一个这样的包 **github.com/astaxie/beego@v1.11.1**
 
-#### 问题二： 依赖包的版本是怎么控制的
+####  问题二： 依赖包的版本是怎么控制的
 
 在上一个问题里，可以看到最终下载在  $GOPATH/pkg/mod 下的包 github.com/astaxie/beego@v1.11.1 最后会有一个版本号 *1.11.1*，
 也就是说，$GOPATH/pkg/mod里可以保存相同包的不同版本。
@@ -88,7 +88,7 @@ require github.com/astaxie/beego v1.11.1
 如果，在**go.mod**用**require**语句指定包和版本 ，go命令会根据指定的路径和版本下载包，
 指定版本时可以用**latest**，这样它会自动下载指定包的最新版本；
 
-#### 依赖包的版本号是什么？ 是包的发布者标记的版本号，格式为 **vn.n.n** (n代表数字)
+版本号格式为 **vn.n.n** (n代表数字)
 查看版本号命令
 
 ```bash
@@ -110,7 +110,7 @@ go.mod主要两个关键字，*require*关键字是引用，后面是包，最�
 
 
 
-#### 问题四：引用的包引用了已经转移的包，而作者没改的话，需要自己修改引用问题。
+####  问题四：引用的包引用了已经转移的包，而作者没改的话，需要自己修改引用问题。
 
 在go快速发展的过程中，有一些依赖包地址变更了。
 以前的做法
@@ -130,7 +130,7 @@ replace golang.org/x/text => github.com/golang/text latest
 这样，go会用 *github.com/golang/text* 替代 *golang.org/x/text*，原理就是下载*github.com/golang/text* 的最新版本到 *$GOPATH/pkg/mod/golang.org/x/text*下。  
 **这样做就不需要修改代码，只需要修改go.mod文件。**
 
-#### 问题五：第三方包和自己的包的源码都在src下，很混乱。
+####  问题五：第三方包和自己的包的源码都在src下，很混乱。
 
 本例里，用 go mod init hello 生成的go.mod文件里的第一行会申明
 module hello
