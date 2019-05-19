@@ -130,10 +130,11 @@ module hello
 ```bash
 # 解决墙问题，使用GOPROXY代理
 GOPROXY=https://goproxy.io go build/run/test/get ${params}
-GOPROXY=https://athens.azurefd.net go build/run/test/get ${params}
+GOPROXY=https://athens.azurefd.net go build/run/test/get ${params}  
 
+```
 
-**最后尝试创建一个hello项目演示GoModule**
+#### 最后尝试创建一个hello项目演示GoModule
 
  首先，在$GOPATH/src路径外的你喜欢的地方创建一个目录，cd 进入目录，新建一个hello.go文件，内容如下
 
