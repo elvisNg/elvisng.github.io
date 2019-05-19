@@ -28,46 +28,8 @@ tags:
 6.新增GOPROXY解决代理镜像问题
 
 
-**尝试创建一个hello项目**
 
- 首先，在$GOPATH/src路径外的你喜欢的地方创建一个目录，cd 进入目录，新建一个hello.go文件，内容如下
-
-```
-package main
-
-import "github.com/astaxie/beego"
-import "mytest v0.0.0"
-
-func main() {
-    beego.Run()
-}
-
-```
-
-按照过去的做法，要运行hello.go需要执行go get 命令 下载beego包到 $GOPATH/src
-
-**但是，使用了新的包管理就不在需要这样做了**
-
-先初始化模块 
->go mod init
-
-再直接
->go run hello.go
-
-稍等片刻… go 会自动查找代码中的包，下载依赖包，并且把具体的依赖关系和版本写入到go.mod和go.sum文件中。
-查看go.mod，它会变成这样：
-
-```
-module hello
-
-go 1.12
-
-require github.com/astaxie/beego v1.11.1
-
-```
-*go.mod*文件的*require*关键字是引用，后面是包，最后*v1.11.1*是引用的版本号，然后*replace*处是替换本地依赖包(路径要处理妥当)的引用
-
-***Modules是如何解决上文的诟病问题的。***
+**Modules是如何解决上文的诟病问题的。**
 
 
 #### 问题一：依赖的包自动下载到哪里了
@@ -169,6 +131,46 @@ module hello
 # 解决墙问题，使用GOPROXY代理
 GOPROXY=https://goproxy.io go build/run/test/get ${params}
 GOPROXY=https://athens.azurefd.net go build/run/test/get ${params}
+
+
+**最后尝试创建一个hello项目演示GoModule**
+
+ 首先，在$GOPATH/src路径外的你喜欢的地方创建一个目录，cd 进入目录，新建一个hello.go文件，内容如下
+
+```
+package main
+
+import "github.com/astaxie/beego"
+import "mytest v0.0.0"
+
+func main() {
+    beego.Run()
+}
+
+```
+
+按照过去的做法，要运行hello.go需要执行go get 命令 下载beego包到 $GOPATH/src
+
+**但是，使用了新的包管理就不在需要这样做了**
+
+先初始化模块 
+>go mod init
+
+再直接
+>go run hello.go
+
+稍等片刻… go 会自动查找代码中的包，下载依赖包，并且把具体的依赖关系和版本写入到go.mod和go.sum文件中。
+查看go.mod，它会变成这样：
+
+```
+module hello
+
+go 1.12
+
+require github.com/astaxie/beego v1.11.1
+
+```
+*go.mod*文件的*require*关键字是引用，后面是包，最后*v1.11.1*是引用的版本号，然后*replace*处是替换本地依赖包(路径要处理妥当)的引用
 ```
 ---
 
