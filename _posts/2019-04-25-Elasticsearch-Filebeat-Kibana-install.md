@@ -5,10 +5,8 @@ subtitle: '组内技术分享'
 author: "Elvis"
 header-style: text
 tags:
-  - Elasticsearch
-  - Filebeat
-  - Kibana
-  - 组内技术分享
+  - ELK
+  - 技术分享
 ---
 
 ### EFK技术选型

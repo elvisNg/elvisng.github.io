@@ -6,8 +6,7 @@ author: "Elvis"
 header-style: text
 tags:
   - Golang
-  - Modules
-  - 模块管理
+  - 技术学习
 ---
 
 ### 首先先来个小例子说明问题：
@@ -187,7 +186,7 @@ GOPROXY=https://athens.azurefd.net go build/run/test/get ${params}
 
 ---
 
-#思考的两个问题：
+## 思考的两个问题：
 
 疑问：  
 1、包的上层依赖是如何可以解决的？  
