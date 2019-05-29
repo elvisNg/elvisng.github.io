@@ -1,58 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.0/css/swiper.min.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-    }
-    html, body {
-      width: 100%;
-      height: 100%;
-    }
-    .swiper-container {
-      width: 100%;
-      height: 100%;
-    }
-    .swiper-slide img {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
-  <title>广东三大方言历史迁徙</title>
-</head>
-<body>
-  <div class="swiper-container">
-      <div class="swiper-wrapper">
-          <div class="swiper-slide">
-            <img src="./img/haka.gif" alt="">
-          </div>
-          <div class="swiper-slide">
-            <img src="./img/cantonese.gif" alt="">
-          </div>
-          <div class="swiper-slide">
-              <img src="./img/min.gif" alt="">
-          </div>
-      </div>
-      <!-- 如果需要分页器 -->
-      <!-- <div class="swiper-pagination"></div> -->
-  </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.0/js/swiper.min.js"></script>
-  <script>        
-    var mySwiper = new Swiper ('.swiper-container', {
-      // direction: 'vertical', // 垂直切换选项
-      loop: true, // 循环模式选项
-      autoplay: {
-        delay: 10000,//1秒切换一次
-      },
-      // pagination: {
-      //   el: '.swiper-pagination',
-      // }
-    })        
-  </script>
-</body>
-</html>
+---
+layout: page
+description: "ENNERVATE"
+---
+
+{% for post in paginator.posts %}
+<div class="post-preview">
+    <a href="{{ post.url | prepend: site.baseurl }}">
+        <h2 class="post-title">
+            {{ post.title }}
+        </h2>
+        {% if post.subtitle %}
+        <h3 class="post-subtitle">
+            {{ post.subtitle }}
+        </h3>
+        {% endif %}
+        <div class="post-content-preview">
+            {% if post.lang == 'en' %}
+                {{ post.content | strip_html | truncate:300 }}
+            {% else %}
+                {{ post.content | strip_html | truncate:200 }}
+            {% endif %}
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} on {{ post.date | date: "%B %-d, %Y" }}
+    </p>
+</div>
+<hr>
+{% endfor %}
+
+<!-- Pager -->
+{% if paginator.total_pages > 1 %}
+<ul class="pager">
+    {% if paginator.previous_page %}
+    <li class="previous">
+        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; Newer Posts</a>
+    </li>
+    {% endif %}
+    {% if paginator.next_page %}
+    <li class="next">
+        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Older Posts &rarr;</a>
+    </li>
+    {% endif %}
+</ul>
+{% endif %}
