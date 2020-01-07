@@ -17,11 +17,11 @@ tags:
 
 
 
-![](../img/in-post/Hyperledgerledger.png)
+![](/img/in-post/Hyperledgerledger.png)
 
 #### 分布式账本的数据结构
 
-![](../img/in-post/HyperledgerDataStruct.png)
+![](/img/in-post/HyperledgerDataStruct.png)
 
 它由多个区块构成了一个有时序的链表，而每个区块里含有多条交易trasaction（缩写为tx）构成的链表。上方有一个WorldState世界状态，这其实是为了提升性能用的。比如，key1共交易了10000次，为了获取它的当前状态值，需要正向执行这10000次交易，这就得不偿失了。如果这1万次交易里，每次新交易执行完，都同步更新一个数据库（在fabric里用的是levelDB），这样查询当前状态时，只需要查询该数据库即可。
 
@@ -58,7 +58,7 @@ ORG结构：
 
 每个管理协作企业的ORG组织都可以拥有自己的MSP。如下图14所示，组织ORG1拥有的MSP叫ORG1.MSP，而组织ORG2业务复杂，所以维护了3个MSP。
 
-![](../img/in-post/Hyperledgerorg.png)
+![](/img/in-post/Hyperledgerorg.png)
 
 
 
@@ -66,7 +66,7 @@ ORG结构：
 
 MSP结构：
 
-![](../img/in-post/Hyperledgermsp.png)
+![](/img/in-post/Hyperledgermsp.png)
 
 
 
@@ -91,7 +91,7 @@ MSP结构：
 
 
 
-![](../img/in-post/HyperledgerTreat.png)
+![](/img/in-post/HyperledgerTreat.png)
 
 
 
@@ -121,13 +121,13 @@ Fabric交易流程图
 
 - Peer节点
 
-  ![](../img/in-post/HyperledgerPeer.png)
+  ![](/img/in-post/HyperledgerPeer.png)
 
   该节点是参与交易的主体，可以说是代表每个参与到链上的成员，他负责储存完整的账本数据即区块链数据，负责共识环节中的执行智能合约，其中所有的Peer节点都维护完整的账本数据称之为Committer，而根据具体的业务划分背书策略时决定哪些Peer。
 
 - Channel
 
-  ![](../img/in-post/HyperledgerChannel.png)
+  ![](/img/in-post/HyperledgerChannel.png)
 
   channel是一个逻辑概念，可以通过MSP隔离全网不同组织的参与者，如上图所示
 
@@ -153,7 +153,7 @@ Fabric交易流程图
 
 MSP来管理身份时，如P1和P2由ORG1.MSP管理，而P3和P4的证书则由ORG2.MSP管理，他们共同使用一个channel，则如下图所示：
 
-![](../img/in-post/HyperledgerBlockchainnetwork.png)
+![](/img/in-post/HyperledgerBlockchainnetwork.png)
 
 
 
@@ -183,7 +183,7 @@ MSP来管理身份时，如P1和P2由ORG1.MSP管理，而P3和P4的证书则由O
 
 **我们看一个具体的例子，若channel上有三个peer背书者，client提交流程如下图所示：**
 
-![](../img/in-post/HyperledgerFabrictreatdetail.png)
+![](/img/in-post/HyperledgerFabrictreatdetail.png)
 
 
 
@@ -198,13 +198,13 @@ MSP来管理身份时，如P1和P2由ORG1.MSP管理，而P3和P4的证书则由O
 
 ##### proposal提案阶段
 
-![](../img/in-post/Hyperledgerfabricproposal.png)
+![](/img/in-post/Hyperledgerfabricproposal.png)
 
 可以看到，A1发出的<T1, P>，收到了<T1, R1, E1>和<T1, R2, E2>两个结果。
 
 ##### package打包阶段
 
-![](../img/in-post/Hyperledgerfabricpackage.png)
+![](/img/in-post/Hyperledgerfabricpackage.png)
 
 O1在一个channel上会收到许多T交易，它会将T排序，在达到block的最大大小（一般应配1M以下，否则性能下降严重，kafka擅长处理小点的消息）或者达到超时时间后，打成区块P2。
 
@@ -212,7 +212,7 @@ O1在一个channel上会收到许多T交易，它会将T排序，在达到block�
 
 ##### 验证阶段
 
-![](../img/in-post/HyperledgerFabricvalidate.png)
+![](/img/in-post/HyperledgerFabricvalidate.png)
 
 O1将含有多条交易T打成区块的B2发往各peer节点，而P1和P2将B2加入各自的L账本中。
 
