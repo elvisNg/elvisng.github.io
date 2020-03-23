@@ -5,7 +5,7 @@ header-img: img/home-bg.jpg
 email: wujunjie6120@163.com
 description: "Web & Mobile Lover，Software Engineer，Go Developer "
 keyword: "golang, Elvis Blog, 博客, 个人网站, 互联网, Web"
-#url: "https://huangxuan.me"              # your host, for absolute URL
+url: "https://elvisng.github.io/"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
 
 # Publish posts or collection documents with a future date.
@@ -17,7 +17,7 @@ weibo_username:     租架飞机打下来
 zhihu_username:     wjj
 github_username:    elvisng
 twitter_username:   wjj
-#facebook_username:  huxpro
+#facebook_username:  elvis_nggg
 #linkedin_username:  firstname-lastname-idxxxx
 
 
