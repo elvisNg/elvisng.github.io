@@ -1,11 +1,10 @@
-mermaid: true
-
 ---
 layout: post
 title: "Broccoli-framework-analysis"
 subtitle: '技术迭代'
 author: "Elvis"
 header-style: text
+mermaid: true
 tags:
   - Broccoli
   - framework
