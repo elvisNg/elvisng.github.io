@@ -19,8 +19,6 @@ tags:
 
 ```mermaid
 graph LR
-
-
   subgraph HTTPGateway
   newHTTPGateway-.->|bindSwaggerUIForAPITest|serveSwaggerUI
   	serveSwaggerUI-.->|注意PathPrefix的顺序问题|NewRouter
@@ -29,7 +27,6 @@ graph LR
   	HttpHandlerRegisterFn-.-> getConf-pathprefix-bind-pathprefix
   newHTTPGateway-.-> |grpcgateway|HttpGWHandlerRegisterFn
   end
-
   subgraph GomicroSrv
     newGomicroSrv-.->|AOP-GoMicroSrv|GenerateServerLogWrap
     	GenerateServerLogWrap-.->|Wrap|Logger
@@ -49,15 +46,12 @@ graph LR
     newGomicroSrv-.->GoMicroHandlerRegisterFn
     newGomicroSrv-.->return-GomicroSrv
   end
-  
-  
   subgraph InitServer
     Service.InitServer-->|初始化Gomirco|newGomicroSrv
     Service.InitServer-->|Gomirco设置到容器|SetGoMicroService
     Service.InitServer-->|初始化HTTPGate|newHTTPGateway
     Service.InitServer-->|HTTPGate设置到容器|SetHTTPHandler
   end
-  
   subgraph LoadEngine
     Service.LoadEngine-->|初始化容器组件|Container.Init-Config
     Container.Init-Config-.->Log
@@ -73,7 +67,6 @@ graph LR
     Service.LoadEngine-->|开启协程处理绑定的变化事件|go-func-processChange-changesC
     Service.LoadEngine-->|加载自定义Engine事件|LoadEngineFn
   end
-  
   subgraph Init
     Service.Init-->|NO1.Load基础配置#如何读取container配置|initConfEntry
     Service.Init-->|NO2.根据ConfEntry的EngineType-Loading-EngineConfig|engineProvidors
@@ -82,7 +75,6 @@ graph LR
     Service.Init-->|NO5.触发服务初始化完成事件|Service.InitServiceCompleteFn
     
   end
-  
   subgraph RunServer
   	Service.RunServer-->container.GetHTTPHandler
   	Service.RunServer-->go-func
@@ -90,7 +82,6 @@ graph LR
   	Service.RunServer-->container.GetGoMicroService
   	Service.RunServer-->gomicroservice.Run
   end
-  
   subgraph Run
     	run-->|按命令行初始化端口等| ParseCommandLineFunc
     	run-->|绑定ServiceDefalut对应Function| NewService
