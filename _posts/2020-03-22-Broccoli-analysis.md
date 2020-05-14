@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Broccoli-framework-analysis"
-subtitle: '技术迭代'
+subtitle: '自建技术框架分享'
 author: "Elvis"
 header-style: text
 mermaid: true
@@ -12,6 +12,11 @@ tags:
   - swagger
   - zipkin 
 ---
+
+框架链路如下：
+
+![](/img/in-post/optimizemongo/discIo.png)
+
 
 # 注：Blog无法支持mermaid，正在解决，请把submermaid拷贝到Typora中查看。
 Typora:

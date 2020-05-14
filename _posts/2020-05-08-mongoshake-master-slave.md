@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "mongoshake-master-slave"
-subtitle: 'Mongo线上高可用双主架构优化性能提高45%'
+subtitle: 'Mongo线上高可用双主架构优化性能提高45%(数据库调优)'
 author: "Elvis"
 header-style: text
 mermaid: true

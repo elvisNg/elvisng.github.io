@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "golang-1.11-modules-再见GoPATH"
-subtitle: '技术迭代'
+subtitle: 'Golang技术迭代'
 author: "Elvis"
 header-style: text
 tags:

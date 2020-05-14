@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Sequence to Sequence"
-subtitle: '组内技术分享'
+subtitle: '主流技术分享'
 author: "Elvis"
 header-style: text
 tags:

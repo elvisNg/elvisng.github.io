@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Hyperledger-Fabric-Analysis"
-subtitle: '组内技术分享'
+subtitle: '区块链技术分享'
 author: "Elvis"
 header-style: text
 tags:
