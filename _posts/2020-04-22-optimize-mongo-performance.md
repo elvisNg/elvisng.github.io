@@ -162,6 +162,10 @@ tags:
    
    >该配置根据请求数动态调整网络线程数，并尽量做到网络IO复用来降低线程创建消耗引起的系统高负载问题。加上 *serviceExecutor: adaptive*配置后，借助boost:asio网络模块实现网络IO复用，同时实现网络IO和磁盘IO分离。这样高并发情况下，Mongo通过自身创建的Worker调用网络链接IO复用和mongodb的锁操作来控制磁盘IO访问线程数，最终降低了大量线程创建和消耗带来的高系统负载，最终通过该方式提升高并发读写性能。
 
+> 优化方案结构如下图：
+
+![](/img/in-post/optimizemongo/adaptivepool.png)
+
 ###### adaptive打开后NetWorker处理的线程效率：
 
 ![](/img/in-post/optimizemongo/networkstats.png)
