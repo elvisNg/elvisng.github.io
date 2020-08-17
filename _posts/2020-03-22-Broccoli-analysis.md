@@ -15,7 +15,7 @@ tags:
 
 框架链路如下：
 
-![](/img/in-post/optimizemongo/discIo.png)
+![](/img/in-post/broccoli-analysis.png)
 
 
 # 注：Blog无法支持mermaid，正在解决，请把submermaid拷贝到Typora中查看。
