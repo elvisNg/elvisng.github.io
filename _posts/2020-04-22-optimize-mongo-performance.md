@@ -47,8 +47,12 @@ tags:
  >在几日内无法增加服務器资源的情況下，首先做了如下层面的优化，并取得了理想的数倍性能提升：
 
 1. 业务层面优化
+
 2. Mongodb配置优化
+
 3. Mongodb存儲引擎WiredTiger優化
+
+   [wiredTiger底层流程分析](https://elvisng.github.io/2020/08/27/mongoDB-server-migration/)
 
 
 
@@ -56,8 +60,12 @@ tags:
  >后期长期优化方案
 
 1. 低等级横向扩容，增加内存，增加SSD，增加读写速率，使得数据有足够的空间映射到内存中提高数据的读写速率，降低服务器的IO
+
 2. 横向扩容，双主方案，hash流量降低40%的流量与读写。
+
 3. 横向扩容，加机器，做副本集，读写分离。（需解决多条件查询的数据融合问题）
+
+   [实现脚本](https://elvisng.github.io/2020/08/27/mongoDB-server-migration/)
 
 > 因为机器和数据融合查询问题，最后选择2的方案优化，采用mongoshake和mongo原生互为主从方案 [详情](https://elvisng.github.io/2020/05/08/mongoshake-master-slave/)
 
