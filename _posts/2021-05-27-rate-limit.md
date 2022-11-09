@@ -41,7 +41,7 @@ tags:
 
 基于固定时间窗口的限流算法是非常简单的。首先需要选定一个时间起点，之后每次接口请求到来都累加计数器，如果在当前时间窗口内，根据限流规则（比如每秒钟最大允许 100 次接口请求），累加访问次数超过限流值，则限流熔断拒绝接口请求。当进入下一个时间窗口之后，计数器清零重新计数。
 
-![image-20210531160410835](../img/in-post/post-reate-limit/time-windows.png)
+![image-20210531160410835](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-reate-limit/time-windows.png)
 
 
 
@@ -49,13 +49,13 @@ tags:
 
 例如：限制 1 秒内最多通过 5 个请求，在第一个窗口的最后半秒内通过了 5 个请求，第二个窗口的前半秒内又通过了 5 个请求。这样看来就是在 1 秒内通过了 10 个请求。
 
-![image-20210531160953137](../img/in-post/post-reate-limit/over-limit-time-windows.png)
+![image-20210531160953137](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-reate-limit/over-limit-time-windows.png)
 
 #### 滑动时间窗口算法
 
 滑动时间窗口算法是对固定时间窗口算法的一种改进，流量经过滑动时间窗口算法整形之后，可以保证任意时间窗口内，都不会超过最大允许的限流值，从流量曲线上来看会更加平滑，可以部分解决上面提到的临界突发流量问题。对比固定时间窗口限流算法，滑动时间窗口限流算法的时间窗口是持续滑动的，并且除了需要一个计数器来记录时间窗口内接口请求次数之外，还需要记录在时间窗口内每个接口请求到达的时间点，对内存的占用会比较多。滑动时间窗口的算法模型如下：
 
-![image-20210531170018314](../img/in-post/post-reate-limit/polling-limit-windows.png)
+![image-20210531170018314](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-reate-limit/polling-limit-windows.png)
 
 **Setp1:**  检查接口 A请求的时间是否在当前的时间窗口 [t_start, t_start+1 秒) 内。如果是，则跳转到 Step 3，否则跳转到 Step 2.
 
@@ -89,7 +89,7 @@ tags:
 
 #### 令牌桶限流算法
 
-![image-20210531173314991](../img/in-post/post-reate-limit/token-limit.png)
+![image-20210531173314991](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-reate-limit/token-limit.png)
 
 
 
@@ -105,7 +105,7 @@ tags:
 
 #### 漏桶限流算法
 
-![img](../img/in-post/post-reate-limit/limit-bucket.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-reate-limit/limit-bucket.png)
 
 
 
@@ -135,7 +135,7 @@ tags:
 
 为了提高服务的性能和可用性，微服务都会多实例集群部署，所谓单机限流是指：独立的对集群中的每台实例进行接口限流，比如限制每台实例接口访问的频率为最大 1000 次 / 秒，单机限流一般使用单机限流算法。
 
-![image-20210531184127587](../img/in-post/post-reate-limit/standalone-limit.png)
+![image-20210531184127587](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-reate-limit/standalone-limit.png)
 
 单机限流的初衷是防止突发流量压垮服务器，所以比较适合针对并发做限制。以上的四种算法都可以实现单机限流。下面会详细代码进行介绍broccoli里面的ratelimit的实现
 
@@ -143,7 +143,7 @@ tags:
 
 所谓的分布式限流是指：提供服务级的限流，限制对微服务集群的访问频率，比如限制 A 调用方每分钟最多请求 1 万次“用户服务”，分布式限流适合做细粒度限流或者访问配额，不同的调用方对不同的接口执行不同的限流规则，所以比较适合针对 hits per second 限流。从防止某调用方过度竞争服务资源来说，分布式限流更加适合。
 
-![image-20210531184420182](../img/in-post/post-reate-limit/cluster-limit.png)
+![image-20210531184420182](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-reate-limit/cluster-limit.png)
 
 #### 分布式限流的中心化存储问题
 

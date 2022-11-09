@@ -34,7 +34,7 @@ tags:
 
 刀耕火种的云算法平台（AlgorithmComb 1.0）如下图所示：
 
-![img](../img/in-post/post-algorithm-platform/api.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-algorithm-platform/api.png)
 
 
 
@@ -57,7 +57,7 @@ tags:
 
 
 
-![image-20220504235440249](../img/in-post/post-algorithm-platform/comb.png)
+![image-20220504235440249](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-algorithm-platform/comb.png)
 
 
 
@@ -126,7 +126,7 @@ AlgorithmComb 2.0平台解耦了算法、工程和平台，实现了算法与工
 
 ​                                                                 **AlgorithmComb 2.0算法研发流程如下图所示：**
 
-![img](../img/in-post/post-algorithm-platform/flow.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-algorithm-platform/flow.png)
 
 ## 总结及未来展望
 

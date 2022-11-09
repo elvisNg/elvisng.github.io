@@ -109,7 +109,7 @@ go tool pprof helloworld demoprof.prof
 
 
 
-![img](../img/in-post/post-go-performance-tool/pprof-tools.jpeg)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-go-performance-tool/pprof-tools.jpeg)
 
 每个方框代表一个函数，方框的大小和执行时间成正比，箭头代表调用关系，箭头上的时间代表被调用函数的执行时间
 
@@ -128,7 +128,7 @@ go tool pprof helloworld demoprof.prof
 go-torch  -u url( 选择是 CPU 或是 memory 等的 profile 文件 )
 ```
 
-![img](../img/in-post/post-go-performance-tool/pprof-high-gc.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-go-performance-tool/pprof-high-gc.png)
 
 可以看到这个cpu-profile分析东西
 
@@ -146,7 +146,7 @@ go-torch  -u url( 选择是 CPU 或是 memory 等的 profile 文件 )
 
 - **Off-CPU**: 线程阻塞在I/O、锁、计时器、页交换等场景中的等待时间。
 
-  ![img](../img/in-post/post-go-performance-tool/on-cpu-off-cpu.png)
+  ![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-go-performance-tool/on-cpu-off-cpu.png)
 
   从上图可以知道，当遇到线程block，或者network的IO阻塞，单靠pprof对于On-Cpu的分析是没办法从火焰图上得到Off-Cpu的阻塞性能分析的
 
@@ -192,7 +192,7 @@ func main() {
 
 然后使用pprof进行分析`go tool pprof -http=:6061 http://localhost:6060/debug/pprof/profile?seconds=10`:
 
-![img](../img/in-post/post-go-performance-tool/pporf-main-cpu-on.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-go-performance-tool/pporf-main-cpu-on.png)
 
 看起来是cpuIntensiveTask占比最高。但是查看我们的日志，根据日志中打印出来的每个函数调用的耗时:
 
@@ -228,7 +228,7 @@ func main() {
 
 然后执行`go tool pprof --http=:6061 http://localhost:6060/debug/fgprof?seconds=10`,最终mian这三个函数正常的显示了，而且正确显示花在它们上面的时间。
 
-![img](../img/in-post/post-go-performance-tool/fgprof_pprof.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-go-performance-tool/fgprof_pprof.png)
 
  从上图可以看出slowNetworkfRequest耗时事最高的，整个程序是卡在了network的IO上，所以可以进一步对于NetWork的IO进行优化。
 

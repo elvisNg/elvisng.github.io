@@ -83,7 +83,7 @@ GC 把程序不用的内存空间视为「垃圾」，（几乎所有的）GC �
 
 下面是第一轮标记结束后，各个对象的颜色分布。
 
-<img src="../img/in-post/post-golang-garbage-collection/Tri-color.png" alt="image-20210508172115865" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-garbage-collection/Tri-color.png" alt="image-20210508172115865" style="zoom:50%;" />
 
 
 
@@ -131,7 +131,7 @@ func main() {
 1. 应用线程插入了一个从黑色对象（A）到白色对象（E）的新引用，则E成为了脏数据。（漏标）
 2. 应用线程删除了从灰色对象（C）到白色对象（E）的直接或者间接引用，则C成为了脏数据。（多标）
 
-<img src="../img/in-post/post-golang-garbage-collection/write-read-barrier.png" alt="图片" style="zoom:67%;" />
+<img src="https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-garbage-collection/write-read-barrier.png" alt="图片" style="zoom:67%;" />
 
 
 
@@ -234,7 +234,7 @@ func readgogc() int32 {
 
 
 具体流程可以参考下面这个经典图列
-![img](../img/in-post/post-golang-garbage-collection/gc-algorithm-phases.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-garbage-collection/gc-algorithm-phases.png)
 
 关于上图有几点需要说明的是
 

@@ -121,7 +121,7 @@ scrape_configs:
 
 ​																			*Prometheus架构*
 
-![framework](../img/in-post/post-prometheus/datasource.png)
+![framework](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-prometheus/datasource.png)
 
 ​		
 

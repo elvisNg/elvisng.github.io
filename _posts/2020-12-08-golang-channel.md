@@ -32,7 +32,7 @@ Go并发的核心哲学是不要通过共享内存进行通信; 相反，通过�
 
 channel一个Go的类型管道，通过它可以在goroutine之间发送和接收消息。它是Golang在语言层面提供的goroutine间的通信方式。
 
-![image-20210511162334799](../img/in-post/post-golang-channel/go-channel.png)
+![image-20210511162334799](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-channel/go-channel.png)
 
 接下来我们通过源代码分析程序执行过程，在讲之前，如果不了解go 并发和调度相关知识。请阅读[GoRoutine理解](https://elvisng.github.io/2020/02/24/golang-routine/)
 
@@ -125,7 +125,7 @@ func main() {
 
 channel信息如下：
 
-![image-20210511170435310](../img/in-post/post-golang-channel/channel-struct-demo.png)
+![image-20210511170435310](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-channel/channel-struct-demo.png)
 
 * buf里面存储了arr[0,10,20,30]四个元素的数组
 

@@ -131,11 +131,11 @@ func NewClient(ctx context.Context, conf config.GoMicro, opts ...client.Option) 
 
 ### Broccli的技术选型：
 
-![roadmap](../img/in-post/broccoli/roadmap.jpg)
+![roadmap](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/broccoli/roadmap.jpg)
 
 ### Broccli的链路调用：
 
-![img](../img/in-post/broccoli-analysis.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/broccoli-analysis.png)
 
 
 

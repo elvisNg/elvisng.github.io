@@ -20,7 +20,7 @@ Logging，Metrics 和 Tracing 有各自专注的部分。
 - Tracing - 用于记录请求范围内的信息。例如，一次远程方法调用的执行过程和耗时。它是我们排查系统性能问题的利器。
   这三者也有相互重叠的部分，如下图所示。
 
-![image-20210808103624897](../img/in-post/post-opentracing/tracing-logging-metrics.png)
+![image-20210808103624897](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-opentracing/tracing-logging-metrics.png)
 
 通过上述信息，我们可以对已有系统进行分类。例如，Zipkin 专注于 tracing 领域；Prometheus 开始专注于 metrics，随着时间推移可能会集成更多的 tracing 功能，但不太可能深入 logging 领域； ELK，阿里云日志服务这样的系统开始专注于 logging 领域，但同时也不断地集成其他领域的特性到系统中来，正向上图中的圆心靠近。
 
@@ -47,7 +47,7 @@ Tracing 是在90年代就已出现的技术。但真正让该领域流行起来�
 
 分布式追踪系统大体分为三个部分，数据采集、数据持久化、数据展示。数据采集是指在代码中埋点，设置请求中要上报的阶段，以及设置当前记录的阶段隶属于哪个上级阶段。数据持久化则是指将上报的数据落盘存储，例如 Jaeger 就支持多种存储后端，可选用 Cassandra 或者 Elasticsearch。数据展示则是前端根据 Trace ID 查询与之关联的请求阶段，并在界面上呈现。
 
-![Request Demonstration](../img/in-post/post-opentracing/request-demonstration.png)
+![Request Demonstration](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-opentracing/request-demonstration.png)
 
 > 图片来源 [Introduction OpenTracing](http://opentracing.io/documentation/)
 
@@ -157,7 +157,7 @@ Trace 表示一次完整的追踪链路，trace 由一个或多个 Span 组成�
 
 Zipkin 是一款开源的分布式实时数据追踪系统（Distributed Tracking System），由 Twitter 公司开发和贡献。其主要功能是聚合来自各个异构系统的实时监控数据。在链路追踪 Tracing Analysis 中，可以通过 Zipkin 上报 Golang 应用数据。
 
-使用 Zipkin 上报数据的流程如下图所示：![img](../img/in-post/post-opentracing/zipkin.png)
+使用 Zipkin 上报数据的流程如下图所示：![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-opentracing/zipkin.png)
 
 使用的 package：
 

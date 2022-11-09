@@ -12,7 +12,7 @@ tags:
 
 ### Linux存储基础知识
 
-![img](../img/in-post/post-golang-memory/linux-memory.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-memory/linux-memory.png)
 
 - CPU寄存器
 
@@ -47,7 +47,7 @@ tags:
 
 > 从虚拟内存部分可以知道，虚拟内存的存在已经将并发降低到线程级别，那么我们是怎么去处理多线程的内存的控制的呢，请看堆和栈。
 
-<img src="../img/in-post/post-golang-memory/linux-heap-stack.png" alt="image-20210504221038310" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-memory/linux-heap-stack.png" alt="image-20210504221038310" style="zoom:50%;" />
 
 栈和堆只是虚拟内存上2块不同功能的内存区域：
 
@@ -68,7 +68,7 @@ tags:
 
 请看下图：
 
-![img](../img/in-post/post-golang-memory/linux-memory-heap-data.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-memory/linux-memory-heap-data.png)
 
 堆内存的实质就是一个个内存块用链表相连；每个内存块的基本信息，比如大小(size)、是否使用中(used)和下一个内存块的地址(next)，内存块实际数据存储在data中。
 
@@ -104,7 +104,7 @@ TCMalloc是怎么处理这个问题的呢？
 
 #### 基本原理
 
-![image-20210505171458028](../img/in-post/post-golang-memory/tcMalloc-memory.png)
+![image-20210505171458028](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-memory/tcMalloc-memory.png)
 
 
 
@@ -132,7 +132,7 @@ PageHeap是对堆内存的抽象，当CentralCache的内存不足时，会从Pag
 
 > 其次中、大对象的内存直接由PageHeap来分配。
 
-![image-20210505171535265](../img/in-post/post-golang-memory/tcMalloc-PageHeap.png)
+![image-20210505171535265](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-memory/tcMalloc-PageHeap.png)
 
 
 
@@ -168,7 +168,7 @@ Go逃逸分析：[golang-escape-analysis](https://elvisng.github.io/2021/05/01/g
 
 #### 基本原理
 
-![img](../img/in-post/post-golang-memory/golang-memory.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-memory/golang-memory.png)
 
 
 
@@ -215,7 +215,7 @@ mheap本身是一个全局变量，当mheap的Span不够用时会向OS申请内�
 
 > 先来清楚对象大小的分类才知道分配的是什么
 
-![img](../img/in-post/post-golang-memory/golang-memory-size-class.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-memory/golang-memory-size-class.png)
 
 **当明白了上面的知识，我们举一个不包含指针的，大小为24Byte的对象为例子来简单说说Go内存的分配。**
 
@@ -240,7 +240,7 @@ span class = 3 << 1 | 1 = 7
 
 传入的sizeclass为uint8，所以对应的span大小为8kb，每个实际对象所占大小为32 byte，计算可得出，span被拆分为256块，根据起始地址可以知道每个对象块的地址。
 
-![image-20210505210909069](../img/in-post/post-golang-memory/memory-span.png)
+![image-20210505210909069](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-memory/memory-span.png)
 
 随着内存的分配，span中的对象内存块，有些被占用，有些未被占用，比如上图，整体代表1个span，蓝色块代表已被占用内存，绿色块代表未被占用内存。当分配内存时，只要快速找到第一个可用的绿色块，并计算出内存地址即可，如果需要还可以对内存块数据清零。
 

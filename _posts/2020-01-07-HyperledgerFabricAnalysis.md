@@ -58,7 +58,7 @@ ORG结构：
 
 每个管理协作企业的ORG组织都可以拥有自己的MSP。如下图14所示，组织ORG1拥有的MSP叫ORG1.MSP，而组织ORG2业务复杂，所以维护了3个MSP。
 
-![](../img/in-post/Hyperledgerorg.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/Hyperledgerorg.png)
 
 
 
@@ -66,7 +66,7 @@ ORG结构：
 
 MSP结构：
 
-![](../img/in-post/Hyperledgermsp.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/Hyperledgermsp.png)
 
 
 
@@ -91,7 +91,7 @@ MSP结构：
 
 
 
-![](../img/in-post/HyperledgerTreat.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/HyperledgerTreat.png)
 
 
 
@@ -121,13 +121,13 @@ Fabric交易流程图
 
 - Peer节点
 
-  ![](../img/in-post/HyperledgerPeer.png)
+  ![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/HyperledgerPeer.png)
 
   该节点是参与交易的主体，可以说是代表每个参与到链上的成员，他负责储存完整的账本数据即区块链数据，负责共识环节中的执行智能合约，其中所有的Peer节点都维护完整的账本数据称之为Committer，而根据具体的业务划分背书策略时决定哪些Peer。
 
 - Channel
 
-  ![](../img/in-post/HyperledgerChannel.png)
+  ![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/HyperledgerChannel.png)
 
   channel是一个逻辑概念，可以通过MSP隔离全网不同组织的参与者，如上图所示
 
@@ -153,7 +153,7 @@ Fabric交易流程图
 
 MSP来管理身份时，如P1和P2由ORG1.MSP管理，而P3和P4的证书则由ORG2.MSP管理，他们共同使用一个channel，则如下图所示：
 
-![](../img/in-post/HyperledgerBlockchainnetwork.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/HyperledgerBlockchainnetwork.png)
 
 
 
@@ -183,7 +183,7 @@ MSP来管理身份时，如P1和P2由ORG1.MSP管理，而P3和P4的证书则由O
 
 **我们看一个具体的例子，若channel上有三个peer背书者，client提交流程如下图所示：**
 
-![](../img/in-post/HyperledgerFabrictreatdetail.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/HyperledgerFabrictreatdetail.png)
 
 
 
@@ -198,13 +198,13 @@ MSP来管理身份时，如P1和P2由ORG1.MSP管理，而P3和P4的证书则由O
 
 ##### proposal提案阶段
 
-![](../img/in-post/Hyperledgerfabricproposal.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/Hyperledgerfabricproposal.png)
 
 可以看到，A1发出的<T1, P>，收到了<T1, R1, E1>和<T1, R2, E2>两个结果。
 
 ##### package打包阶段
 
-![](../img/in-post/Hyperledgerfabricpackage.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/Hyperledgerfabricpackage.png)
 
 O1在一个channel上会收到许多T交易，它会将T排序，在达到block的最大大小（一般应配1M以下，否则性能下降严重，kafka擅长处理小点的消息）或者达到超时时间后，打成区块P2。
 
@@ -212,7 +212,7 @@ O1在一个channel上会收到许多T交易，它会将T排序，在达到block�
 
 ##### 验证阶段
 
-![](../img/in-post/HyperledgerFabricvalidate.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/HyperledgerFabricvalidate.png)
 
 O1将含有多条交易T打成区块的B2发往各peer节点，而P1和P2将B2加入各自的L账本中。
 

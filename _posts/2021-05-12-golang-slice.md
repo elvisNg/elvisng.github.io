@@ -35,7 +35,7 @@ type slice struct {
 `长度`，表示切片可用元素的个数，也就是说使用下标对 slice 的元素进行访问时，下标不能超过 slice 的长度；
 `容量`，底层数组的元素个数，容量 >= 长度。在底层数组不进行扩容的情况下，容量也是 slice 可以扩张的最大限度。
 
-![](../img/in-post/post-golang-slice/slice-struct-demo.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-slice/slice-struct-demo.png)
 
 注意，底层数组是可以被多个 slice 同时指向的，因此对一个 slice 的元素进行操作是有可能影响到其他 slice 的。
 
@@ -61,7 +61,7 @@ type slice struct {
 
 它们的内部结构如下图：
 
-![img](../img/in-post/post-golang-slice/nil-empty-slice.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-slice/nil-empty-slice.png)
 
 | 创建方式      | nil切片              | 空切片                  |
 | ------------- | -------------------- | ----------------------- |
@@ -85,7 +85,7 @@ func main(){
 }
 ```
 
-![image-20210513180551250](../img/in-post/post-golang-slice/make-slice.png)
+![image-20210513180551250](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-slice/make-slice.png)
 
 ```go
 func main(){
@@ -93,7 +93,7 @@ func main(){
 }
 ```
 
-![image-20210513214133148](../img/in-post/post-golang-slice/slice-array-demo.png)
+![image-20210513214133148](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-slice/slice-array-demo.png)
 
 ```go
 func main(){
@@ -103,7 +103,7 @@ func main(){
 }
 ```
 
-![image-20210513214310317](../img/in-post/post-golang-slice/slice-array-demo2.png)
+![image-20210513214310317](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-slice/slice-array-demo2.png)
 
 
 

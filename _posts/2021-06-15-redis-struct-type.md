@@ -149,11 +149,11 @@ typedef struct list {
 
 可以看到，多个 listNode 可以通过 `prev` 和 `next` 指针组成双向链表：
 
-![image-20210615151511734](../img/in-post/post-redis/redis-listnode.png)
+![image-20210615151511734](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-redis/redis-listnode.png)
 
 虽然仅仅使用多个 listNode 结构就可以组成链表，但是使用 `adlist.h/list` 结构来持有链表的话，操作起来会更加方便：
 
-![image-20210615151736043](../img/in-post/post-redis/list.png)
+![image-20210615151736043](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-redis/list.png)
 
 * `listDup()`用于复制链表, 如果用户实现了dup函数, 则会使用它复制链表结点的value。
 * `listRelease(list *list)`用于释放表头和列表，如果用户实现了free函数，则会使用它来释放该节点的值
@@ -288,13 +288,13 @@ typedef struct dictIterator {
 
 #### dict的结构如下：
 
-![image-20210615154035183](../img/in-post/post-redis/hash-struct.png)
+![image-20210615154035183](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-redis/hash-struct.png)
 
 
 
 #### 往HashDict添加元素的过程：
 
-![image-20210615155553317](../img/in-post/post-redis/hash-dict-add-entry.png)
+![image-20210615155553317](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-redis/hash-dict-add-entry.png)
 
 
 
@@ -320,7 +320,7 @@ typedef struct dictIterator {
 
 大字典的扩容是比较耗时间的，需要重新申请新的数组，然后将旧字典所有链表中的元素重新挂接到新的数组下面，这是一个 O(n) 级别的操作，作为单线程的 Redis 很难承受这样耗时的过程，所以 Redis 使用 **渐进式 rehash** 小步搬迁：
 
-![image-20210615160238957](../img/in-post/post-redis/hash-append-newone.png)
+![image-20210615160238957](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-redis/hash-append-newone.png)
 
 1. 创建一个比 ht[0]->table 更大的 ht[1]->table ， size为大于used*2的2的指数, 开始值为4；
 

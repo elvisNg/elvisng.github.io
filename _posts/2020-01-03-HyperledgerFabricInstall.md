@@ -27,7 +27,7 @@ tags:
 
 - 私有链：仅由单个区块链服务客户使用，仅有授权的节点才能接入，并按照规则参与共识和读写数据。
 
-![image-20200106210102820](../img/in-post/image-20200106210102820.png)
+![image-20200106210102820](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/image-20200106210102820.png)
 
 ###  区块链核心构成
 

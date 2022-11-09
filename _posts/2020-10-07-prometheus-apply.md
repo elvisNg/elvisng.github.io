@@ -267,7 +267,7 @@ Label 的命名：
 
 理想情况下，桶会使得数据分布呈阶梯状，即各桶区间内数据个数大致相同。如图1所示，是本人在实际场景下配置的buckets 数据直方图，y 轴为 buckets 内的数据个数，x 轴是各 buckets，可以看出其近似成阶梯状。这种情况下，当前桶个数下对数据的分辨率最大，各百分位数计算的准确率较高。
 
-![img](../img/in-post/post-prometheus/buckets.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-prometheus/buckets.png)
 
 **图1 较为理想的桶数据分布**
 
@@ -303,7 +303,7 @@ $ systemctl start grafana-server
 3. 浏览器访问[http://localhost:3000](https://links.jianshu.com/go?to=http%3A%2F%2Flocalhost%3A3000)，默认用户名和密码为admin和admin。
     Grafana仪表盘实例查看地址：[https://grafana.com/grafana/dashboards](https://links.jianshu.com/go?to=https%3A%2F%2Fgrafana.com%2Fgrafana%2Fdashboards)
 
-![img](../img/in-post/post-prometheus/grafana.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-prometheus/grafana.png)
 
 
 

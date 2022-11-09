@@ -31,11 +31,11 @@ tags:
 
 ###### 高峰时的Mongo服务器IO：
 
-![](../img/in-post/optimizemongo/discIo.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/discIo.png)
 
 ###### 高峰时的MongoStat：
 
-![](../img/in-post/optimizemongo/beforemongostat.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/beforemongostat.png)
 
 
 
@@ -177,11 +177,11 @@ tags:
 
 > 优化方案结构如下图：
 
-![img](../img/in-post/optimizemongo/adaptivepool.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/adaptivepool.png)
 
 ###### adaptive打开后NetWorker处理的线程效率：
 
-![img](../img/in-post/optimizemongo/networkstats.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/networkstats.png)
 
 
 2. 增加热数据缓存，减少重复IO。
@@ -195,11 +195,11 @@ CS端模型优化是直接从调用层面降低调用与连接数，进而数据
 
 ###### 优化前-MongoStat：
 
-![img](../img/in-post/optimizemongo/beforemongostat.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/beforemongostat.png)
 
 ###### 优化后的MongoStat：
 
-![img](../img/in-post/optimizemongo/aftermongostat.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/aftermongostat.png)
 
 ##### 数据库服务器优化前后服务器性能对比：
 
@@ -208,11 +208,11 @@ CS端模型优化是直接从调用层面降低调用与连接数，进而数据
 
 ###### 服务器磁盘IO对比图：
 
-![img](../img/in-post/optimizemongo/merchineio.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/merchineio.png)
 
 ###### 服务器CPU对比图：
 
-![img](../img/in-post/optimizemongo/merchinecpu.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/merchinecpu.png)
 
 > 以上为CS端优化情况，下面是底层存储引擎的优化。
 
@@ -220,7 +220,7 @@ CS端模型优化是直接从调用层面降低调用与连接数，进而数据
 
 谈到存储引擎优化，我们先来了解一下Mongo的读写流程,如下图：
 
-![img](../img/in-post/optimizemongo/mongorwflow.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/mongorwflow.png)
 
 >WriteFlow
 * Traverse btree,find page to write
@@ -243,7 +243,7 @@ CS端模型优化是直接从调用层面降低调用与连接数，进而数据
 
 操作内存写入的最少单位是page，下图以page为单位展示，data是怎么变成used和dirty的。
 
-![img](../img/in-post/optimizemongo/data_dirty&clean.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/data_dirty&clean.png)
 > 从上图可以看出数据变成dirty是以下两个方面的数据：
 1. 在checkpoint之前所有修改过的page数据都会标注为dirty
 2. 在checkpoint后，若此次刷盘的checkpoint存在uncommitted的数据那此次checkpoint的数据在缓存中就会被标注成dirty
@@ -256,7 +256,7 @@ wiredtiger不例外的也是遵循了LRU原理来淘汰数据，过wiredtiger的
 
 具体evict的流程如下：
 
-![img](../img/in-post/optimizemongo/evictforce.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/evictforce.png)
 
 1. 一个evict线程时间片内阶段性的去扫描各个btree,把满足淘汰条件的page添加到evictqueue中。
    
@@ -330,7 +330,7 @@ checkpoint調整後的值如下:
 
 #### WiredTiger优化后磁盘IO：
 
-![img](../img/in-post/optimizemongo/wiredtigerafterio.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/optimizemongo/wiredtigerafterio.png)
 
 從上图可以看出，存储引擎优化后IO由高企100%缓解到50%以下，时间延迟进一步降低並处于平穩，從平均80ms到平均20ms左右。
 

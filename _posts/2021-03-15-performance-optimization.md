@@ -109,7 +109,7 @@ func Access(ng engine.Engine) gin.HandlerFunc {
 
 通过压测可以比较快地发现问题，达到一定 QPS 压力时，会有大量的 Goroutine 堆积，通过pprof看到下面有 18910 个 G 堆积在抢锁代码上：
 
-![image-20210430234729253](../img/in-post/post-golang-performance-optimization/blocking-pprof-goruntine.png)
+![image-20210430234729253](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/blocking-pprof-goruntine.png)
 
 
 
@@ -239,7 +239,7 @@ func main() {
 
 查看pprof的cpu占用可以看出:
 
-![img](../img/in-post/post-golang-performance-optimization/runtime-scheduler-pprof.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/runtime-scheduler-pprof.png)
 
 
 
@@ -259,7 +259,7 @@ func main() {
 
 #### gc垃圾回收占用过多 CPU
 
-![image-20210502223110586](../img/in-post/post-golang-performance-optimization/runtime-gcmark-pprof.png)
+![image-20210502223110586](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/runtime-gcmark-pprof.png)
 
 上图是一个Goroutine中使用map触发gc回收的例子
 
@@ -292,23 +292,23 @@ func main() {
 
 在使用GoMicro 1.10版本发生了一个chan没被消费导致goroutine泄露
 
-通过压测可以看到：![img](../img/in-post/post-golang-performance-optimization/golang-runtime-gpark.png)
+通过压测可以看到：![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/golang-runtime-gpark.png)
 
 可以看到运行到`runtime.gopark`的goroutine数量增加了471712个
 
 打印在运行的goroutine发现一直在增加
 
-![img](../img/in-post/post-golang-performance-optimization/goroutine-add.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/goroutine-add.png)
 
 看到这个版本里面的开源库源码：
 
-<img src="../img/in-post/post-golang-performance-optimization/gomicro-watch.png" alt="img" style="zoom:67%;" />
+<img src="https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/gomicro-watch.png" alt="img" style="zoom:67%;" />
 
 可以看到监听cache的时候Goroutine无法释放导致，goroutine泄露。
 
 在gomicro的1.18版本修复后源码为：
 
-![img](../img/in-post/post-golang-performance-optimization/gomicro-watch-after.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/gomicro-watch-after.png)
 
 
 
@@ -418,7 +418,7 @@ func (c *Conn) writeRecordLocked(typ recordType, data []byte) (int, error) {
 
 > 以下是以毫秒访问百度，压测30秒的数据，数据准确性有偏差，但足够看出问题了。
 
-![image-20210503145027689](../img/in-post/post-golang-performance-optimization/golang-sdk-memory-pprof.png)
+![image-20210503145027689](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/golang-sdk-memory-pprof.png)
 
 **可以看出内存使用率相差接近4倍之多。**
 
@@ -452,7 +452,7 @@ goroutine锁使用的最小的buffer栈大小是2KB，一百万个也就几G的�
 
 ##### goroutine-per-connection模式（一协程一连接）：
 
-> ![image-20210503152559158](../img/in-post/post-golang-performance-optimization/goroutine-netpoller.png)其实netPoller的实现也是epoll
+> ![image-20210503152559158](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-golang-performance-optimization/goroutine-netpoller.png)其实netPoller的实现也是epoll
 
 
 

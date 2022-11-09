@@ -19,7 +19,7 @@ tags:
 
 ### net/http处理Http请求的基本流程
 
-![img](../img/in-post/golang-http.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/golang-http.png)
 
 ### Http包的三个关键类型
 

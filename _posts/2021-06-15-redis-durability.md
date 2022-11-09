@@ -96,7 +96,7 @@ aof-rewrite-incremental-fsync yes
 
 由于 `save` 基本不会被使用到，我们重点看看 `bgsave` 这个命令是如何完成RDB的持久化的。
 
-![image-20210615233251744](../img/in-post/post-redis/rdb-fluent.png)
+![image-20210615233251744](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-redis/rdb-fluent.png)
 
 
 
@@ -114,7 +114,7 @@ aof重写是为了减少aof文件的大小，可以手动或者自动触发，�
 
 下面来看看重写的一个流程图：
 
-![image-20210615233347632](../img/in-post/post-redis/aof-fluent.png)
+![image-20210615233347632](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-redis/aof-fluent.png)
 
 对于上图有四个关键点补充一下：
 
@@ -131,7 +131,7 @@ aof重写是为了减少aof文件的大小，可以手动或者自动触发，�
 
 其实想要从这些文件中恢复数据，只需要重新启动Redis即可。我们还是通过图来了解这个流程：
 
-![image-20210615233427863](../img/in-post/post-redis/recover-data.png)
+![image-20210615233427863](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/post-redis/recover-data.png)
 
 
 

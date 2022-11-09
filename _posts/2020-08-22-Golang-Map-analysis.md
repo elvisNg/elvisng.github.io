@@ -37,7 +37,7 @@ type hmap struct {
 }
 ```
 
-![](../img/in-post/golang-map-struct.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/golang-map-struct.png)
 
 其实map就是上图的结构：
 
@@ -95,7 +95,7 @@ func makemap(t *maptype, hint int, h *hmap) *hmap {
 
 #### Map-Get
 
-![](../img/in-post/golang-map-get.png)
+![](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/golang-map-get.png)
 
 
 
@@ -178,7 +178,7 @@ bucketloop:
 
 ###### 新的key-value存入
 
-![img](../img/in-post/golang-map-put.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/golang-map-put.png)
 
 
 
@@ -271,7 +271,7 @@ overflow 的 bucket 数量过多：当 B 小于 15，如果 overflow 的 bucket 
 
 ###### **相同容量扩容**
 
-![img](../img/in-post/golang-map-evacuate.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/golang-map-evacuate.png)
 
 *相同容量的扩容，实际上就是一种整理，将分散的数据集合到一起，提高扫描效率。*
 
@@ -279,7 +279,7 @@ overflow 的 bucket 数量过多：当 B 小于 15，如果 overflow 的 bucket 
 
 ###### **翻倍容量扩容**
 
-![img](../img/in-post/golang-map-double-evacuate.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/golang-map-double-evacuate.png)
 
 *双倍扩容同时会带来元素的整理，如果有两个key后三位分别是001和101，当B=2时，只有4个桶，只看最后两位，这两个key后两位都是01所以在一个桶里面；扩容之后B=3，就会有8个桶，看后面三位，于是它们就分到了不同的桶里面。*
 
@@ -287,7 +287,7 @@ overflow 的 bucket 数量过多：当 B 小于 15，如果 overflow 的 bucket 
 
 ###### 图解[`runtime.evacuate`](https://github.com/golang/go/blob/36f30ba289e31df033d100b2adb4eaf557f05a34/src/runtime/map.go#L1128-L1240)流程：
 
-![img](../img/in-post/golang-map-evacuate-flow.png)
+![img](https://raw.githubusercontent.com/elvisNg/elvisng.github.io/master/img/in-post/golang-map-evacuate-flow.png)
 
 - 扩容不是一次性完成的，还记的我们hmap一开始有一个oldbuckets吗？是先将老数据存到这个里面
 - 每次搬运1到2个bucket，当插入或修改、删除key触发
