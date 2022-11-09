@@ -11,12 +11,8 @@ tags:
 ---
 
 
-Golang Map 分析
 
-map Buckets 最大size是 2的15次方 
-问题，既然hmap是用链表相连，为什么每次遍历map的时候顺序不一直在，是通过每次产生的随机数来决定元素的顺序？
-
-#### map基础结构
+### map基础结构
 
 ```go
 // A header for a Go map.
@@ -41,7 +37,7 @@ type hmap struct {
 }
 ```
 
-![](/img/in-post/golang-map-struct.png)
+![](../img/in-post/golang-map-struct.png)
 
 其实map就是上图的结构：
 
@@ -53,7 +49,7 @@ type hmap struct {
 
 
 
-#### Map初始化
+### Map初始化
 
 ```Go
 func makemap(t *maptype, hint int, h *hmap) *hmap {
@@ -95,11 +91,11 @@ func makemap(t *maptype, hint int, h *hmap) *hmap {
 
 
 
-#### Get
+### Get
 
 #### Map-Get
 
-![](/img/in-post/golang-map-get.png)
+![](../img/in-post/golang-map-get.png)
 
 
 
@@ -176,13 +172,13 @@ bucketloop:
 
 
 
-#### Put
+### Put
 
 #### Map-Put
 
 ###### 新的key-value存入
 
-![img](/img/in-post/golang-map-put.png)
+![img](../img/in-post/golang-map-put.png)
 
 
 
@@ -235,7 +231,7 @@ bucketloop:
 
 
 
-#### Map扩容
+### Map扩容
 
 ######  扩容的方式有以下两种：
 
@@ -275,7 +271,7 @@ overflow 的 bucket 数量过多：当 B 小于 15，如果 overflow 的 bucket 
 
 ###### **相同容量扩容**
 
-![img](/img/in-post/golang-map-evacuate.png)
+![img](../img/in-post/golang-map-evacuate.png)
 
 *相同容量的扩容，实际上就是一种整理，将分散的数据集合到一起，提高扫描效率。*
 
@@ -283,7 +279,7 @@ overflow 的 bucket 数量过多：当 B 小于 15，如果 overflow 的 bucket 
 
 ###### **翻倍容量扩容**
 
-![img](/img/in-post/golang-map-double-evacuate.png)
+![img](../img/in-post/golang-map-double-evacuate.png)
 
 *双倍扩容同时会带来元素的整理，如果有两个key后三位分别是001和101，当B=2时，只有4个桶，只看最后两位，这两个key后两位都是01所以在一个桶里面；扩容之后B=3，就会有8个桶，看后面三位，于是它们就分到了不同的桶里面。*
 
@@ -291,11 +287,21 @@ overflow 的 bucket 数量过多：当 B 小于 15，如果 overflow 的 bucket 
 
 ###### 图解[`runtime.evacuate`](https://github.com/golang/go/blob/36f30ba289e31df033d100b2adb4eaf557f05a34/src/runtime/map.go#L1128-L1240)流程：
 
-![img](/img/in-post/golang-map-evacuate-flow.png)
+![img](../img/in-post/golang-map-evacuate-flow.png)
 
 - 扩容不是一次性完成的，还记的我们hmap一开始有一个oldbuckets吗？是先将老数据存到这个里面
 - 每次搬运1到2个bucket，当插入或修改、删除key触发
 - 扩容之后肯定会影响到get和put，遍历的时候肯定会先从oldbuckets拿，put肯定也要考虑是否要放到新产生的桶里面去
+
+
+
+# golang 中的map为什么说是非线程安全的
+
+golang的map 跟hash map 是一样的，但是go的分配过程又有自己独特的方式。可找下golang map 原理的文章看下。但是为什么说map 是非线程安全的呢？
+
+因为hash map 的内存是按照2的倍数开辟的，当前面开辟的内存不够的时候，会新开辟一段内存，将原来内存的数据转移到新的内存块中，这个过程是没有加锁的，如果这个时候同时有个读的线程过来获取这块内存数据，就会出现安全问题。
+
+所以多个goroutine同时操作map的时候可能会出现concurrent map writes 的问题，自己实现一个加好读写锁的map结构，建议直接用golang 的sync.Map。性能好，同时简单易用。
 
 
 
@@ -316,6 +322,11 @@ type SafeMap struct {
 
 ```
 
-###### 个人问题与思考：
+Golang Map 个人问题：
 
-既然hmap是用链表相连，为什么每次遍历map的时候输出的顺序都不一样，源码显示是通过每次产生的随机数来决定元素的顺序？（欢迎评论解答）
+map Buckets 最大size是 2的15次方 
+问题，既然hmap是用链表相连，为什么每次遍历map的时候顺序不一直在，是通过每次产生的随机数来决定元素的顺序？
+
+
+
+###### 下一篇讲解Golang 1.9推出的sync.Map

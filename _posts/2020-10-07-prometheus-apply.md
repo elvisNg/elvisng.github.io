@@ -37,7 +37,17 @@ tags:
 **2.1 Counter**
 
 - 定义：是单调递增的计数器，重启时重置为0，其余时候只能增加。
-- 方法： type Counter interface {   Metric   Collector    // 自增1   Inc()   // 把给定值加入到计数器中. 若值小于 0 会 panic   Add(float64) }
+
+- 方法： 
+
+  ```go
+  type Counter interface {   
+  	Metric   Collector    // 自增1   
+  	Inc()   // 把给定值加入到计数器中. 若值小于 0 会 panic   
+  	Add(float64) 
+  	}
+  ```
+
 - 常测量对象：
   - 请求的数量
   - 任务完成的数量
@@ -48,7 +58,24 @@ tags:
 **2.2 Gauge**
 
 - 定义：表示一个可增可减的数字变量，初值为0
-- 方法： type Gauge interface {   Metric   Collector   Set(float64)    // 直接设置成给定值   Inc()   // 自增1   Dec()   // 自减1   Add(float64)     // 增加给定值，可为负   Sub(float64)    // 减少给定值，可为负   // SetToCurrentTime 将 Gauge 设置成当前的 Unix 时间戳   SetToCurrentTime() }
+
+- 方法： 
+
+  ```go
+  type Gauge interface {   
+  		Metric   Collector   
+  		Set(float64)    // 直接设置成给定值   
+  		Inc()   // 自增1   
+  		Dec()   // 自减1   
+  		Add(float64)     // 增加给定值，可为负   
+  		Sub(float64)    // 减少给定值，可为负   // 
+  		SetToCurrentTime 将 Gauge 设置成当前的 Unix 时间戳   
+  		SetToCurrentTime() 
+  		}
+  ```
+
+  
+
 - 常测量对象：
   - 温度
   - 内存用量
@@ -58,11 +85,25 @@ tags:
 **2.3 Histogram**
 
 - 定义：Histogram 会对观测数据取样，然后将观测数据放入有数值上界的桶中，并记录各桶中数据的个数，所有数据的个数和数据数值总和。
-- 方法： type Histogram interface {   Metric   Collector    // Observe 将一个观测到的样本数据加入 Histogram 中，并更新相关信息   Observe(float64) }
+
+- 方法：
+
+  ```
+   type Histogram interface {   
+   Metric   
+   Collector    // 
+   Observe 将一个观测到的样本数据加入 Histogram 中，并更新相关信息   
+   Observe(float64) 
+   }
+  ```
+
+  
+
 - 常测量对象：
   - 请求时延
   - 回复长度
   - ...各种有样本数据
+  
 - 具体实现：Histogram 会根据观测的样本生成如下数据： inf 表无穷值，a1,a2,...是单调递增的数值序列。
   - [basename]_count: 数据的个数，类型为 counter
   - [basename]_sum: 数据的加和，类型为 counter
@@ -70,6 +111,7 @@ tags:
   - [basename]_bucket{le=a2}: 处于[-inf,a2]的数值个数
   - ...
   - [basename]_bucket{le=<+inf>}：处于[-inf,+inf]的数值个数，prometheus默认额外生成，无需用户定义
+  
 - Histogram 可以计算样本数据的百分位数，其计算原理为：通过找特定的百分位数值在哪个桶中，然后再通过插值得到结果。比如目前有两个桶，分别存储了[-inf, 1]和[-inf, 2]的数据。然后现在有20%的数据在[-inf, 1]的桶，100%的数据在[-inf, 2]的桶。那么，50%分位数就应该在[1, 2]的区间中，且处于(50%-20%) / (100%-20%) = 30% / 80% = 37.5% 的位置处。Prometheus计算时假设区间中数据是均匀分布，因此直接通过线性插值可以得到 (2-1)*3/8+1 = 1.375.
 
 **2.4 Summary**

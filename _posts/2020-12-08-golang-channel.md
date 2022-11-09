@@ -1,204 +1,513 @@
 ---
 layout: post
-title: "Golang-Routine"
+title: "Go并发哲学：不要通过共享内存进行通信; 相反，通过沟通分享记忆。"
 subtitle: 'channel'
 author: "Elvis"
 header-style: text
 tags:
   - golang
-  - 技术分享
-
 ---
 
-**Go**（又称**Golang**）是[Google](https://baike.baidu.com/item/Google)开发的一种[静态](https://baike.baidu.com/item/静态)[强类型](https://baike.baidu.com/item/强类型)、编译型、并发型，并具有垃圾回收功能的[编程语言](https://baike.baidu.com/item/编程语言)。Go于2009年正式推出，国内各大互联网公司都有使用，尤其是七牛云，基本都是golang写的，
-传闻Go是为并发而生的语言，运行速度仅比c c++慢一点，内置协程（轻量级的线程），说白了协程还是运行在一个线程上，由调度器来调度线程该运行哪个协程，也就是类似于模拟了一个操作系统调度线程，我们也知道，***其实多线程说白了也是轮流占用cpu，其实还是顺序执行的\***，协程也是一样，他也是轮流获取执行机会，只不过他获取的是线程，***但是如果cpu是多核的话，多线程就能真正意义上的实现并发\***同时，如果GO执行过程中有多个线程的话，协程也能实现真正意义上的并发执行，所以，***最理想的情况，根据cpu核数开辟对应数量的线程，通过这些线程，来为协程提供执行环境\***
-当我们在开发网络应用程序时，遇到的瓶颈总是在io上，由此出现了多进程，多线程，异步io的解决方案，其中异步io最为优秀，因为他们在不占用过多的资源情况下完成高性能io操作，但是异步io会导致一个问题，那就是回调地狱，node js之前深受诟病的地方就在于此，后来出现了async await这种方案，真正的实现了同步式的写异步，其实Go的协程也是这样，有人把goroutine叫做纤程，认为node js的async await才是真正的协程，对此我不做评价，关于goroutine的运行机制本文不讲，大家可以看[这篇](https://www.cnblogs.com/sunsky303/p/9115530.html)博文，讲的很生动，本文主要对goroutine的使用进行讲解，如果大家熟悉node js的async await或者c#的async（其实node js就是学习的c#的async await），可以来对比一下两者在使用上的不同，从而对协程纤程的概念产生进一步的了解
-在golang中开辟一个协程非常简单，只需要一个go关键字
+### channel的作用
 
-```
-package main
-  
-import (
-        "fmt"
-        "time"
-)
+众所周知，Go依赖于称为CSP（Communicating Sequential Processes）的并发模型，通过Channel实现这种同步模式。
 
+Go并发的核心哲学是不要通过共享内存进行通信; 相反，通过沟通分享记忆。
 
-func main(){
-        for i := 0;i<10;i++{
-                go func(i int){
-                        for{
-                                fmt.Printf("%d",i);
-                           }
-                }(i)
-        }
-        time.Sleep(time.Millisecond);
-}
-```
-
-打印结果
-
-```
-5551600088800499999991117777777742222220000044444444888888888999
-9666665111177777777777777777777777777333333333333333399999999999
-999999999999999999999999999999444442224444444488888888222222222
-20888886666666655555555555444011111111111111000000000999999555555
-5554444444000077777666666311111197777778888222277777753333444444
-9999997777772222000077774444444444444444444
-```
-
-可以看到，完全是随机的，打印哪个取决于调度器对协程的调度，
-goroutine相比于线程，有个特点，那就是非抢占式，如果一个协程占据了线程，不主动释放或者没有发生阻塞的话，那么永远不会交出线程的控制权，我们举个例子来验证下
-
-```
-package main
-  
-import (
-       "time"
-)
-func main(){
-        for i := 0;i<10;i++{
-                go func(i int){
-                        for{
-                                i++                                
-                          }
-                }(i)
-        }
-        time.Sleep(time.Millisecond);
-}
-```
-
-这段程序在执行后，永远不会退出，并且占满了cpu，原因就是goroutine中，一直在执行i++，没有释放，而一直占用线程，当四个线程占满之后，其他的所有goroutine都没有执行的机会了，所以本该一秒钟后就退出的程序一直没有退出，cpu满载再跑，但是为什么前面例子的Printf没有发生这种情况呢？是因为Printf其实是个io操作，io操作会阻塞，阻塞的时候goroutine就会自动的释放出对线程的占有，所以其他的goroutine才有执行的机会，除了io阻塞，golang还提供了一个api，让我们可以手动交出控制权，那就是Gosched()，当我们调用这个方法时，goroutine就会主动释放出对线程的控制权
-
-```
-package main
-  
-import (
-       "time"
-      "runtime"
-)
-func main(){
-        for i := 0;i<10;i++{
-                go func(i int){
-                        for{
-                                i++;
-                                runtime.Gosched();                                
-                          }
-                }(i)
-        }
-        time.Sleep(time.Millisecond);
-}
-```
-
-修改之后，一秒钟之后，代码正常退出
-常见的触发goroutine切换，有一下几种情况
-
-```
-1、I/O,select
-
-2、channel
-
-3、等待锁
-
-4、函数调用（是一个切换的机会，是否会切换由调度器决定）
-
-5、runtime.Gosched()
-```
-
-说完了goroutine的基本用法，接下来我们说一下goroutine之间的通信，Go中通信的理念是“不要通过共享数据来通信，而是通过通信来共享数据“，Go中实现通信主要通过channel，它类似于unix shell中的双向管道，可以接受和发送数据，
-我们来看个例子，
-
-```
-package main
-  
-import(
-        "fmt"
-        "time"
-)
-
-func main(){
-        c := make(chan int)
-        go func(){
-           for{
-                n := <-c;
-                fmt.Printf("%d",n)
-              }
-        }()
-
-        c <- 1;
-        c <- 2;
-        time.Sleep(time.Millisecond);
-
-
-}
-```
-
-打印结果为`12`,我们通过make来创建channel类型，并指明存放的数据类型，通过 `<-`来接收和发送数据，`c <- 1`为向channel c发送数据1，`n := <-c;`表示从channel c接收数据，默认情况下，发送数据和接收数据都是阻塞的，这很容易让我们写出同步的代码，因为阻塞，所以会很容易发生goroutine的切换，并且，数据被发送后一定要被接收，不然会一直阻塞下去，程序会报错退出，
-***本例中，首先向c发送数据1，main goroutine阻塞，执行开辟的协程，从而读到数据，打印数据，然后main协程阻塞完成，向c发送第二个数据2，开辟的协程还在阻塞读取数据，成功读取到数据2时，打印2，一秒钟后，主函数退出，所有goroutine销毁，程序退出\***
+> DO NOT COMMUNICATE BY SHARING MEMORY; INSTEAD, SHARE MEMORY BY COMMUNICATING.
 
 
 
+如果程序设计成通过通信来共享数据的话，那么通信的两端是不是在同一个物理设备上就无所谓了，只有这样才能实现真正的分布式计算。
+
+内存的话还要考虑内存拷贝
+
+1. 首先，使用发送消息来同步信息相比于直接使用共享内存和互斥锁是一种更高级的抽象，使用更高级的抽象能够为我们在程序设计上提供更好的封装，让程序的逻辑更加清晰；
+
+2. 其次，消息发送在解耦方面与共享内存相比也有一定优势，我们可以将线程的职责分成生产者和消费者，并通过消息传递的方式将它们解耦，不需要再依赖共享内存；
+
+3. 最后，Go 语言选择消息发送的方式，通过保证同一时间只有一个活跃的线程能够访问数据，能够从设计上天然地避免线程竞争和数据冲突的问题；
+
+   
+
+channel一个Go的类型管道，通过它可以在goroutine之间发送和接收消息。它是Golang在语言层面提供的goroutine间的通信方式。
+
+![image-20210511162334799](../img/in-post/post-golang-channel/go-channel.png)
+
+接下来我们通过源代码分析程序执行过程，在讲之前，如果不了解go 并发和调度相关知识。请阅读[GoRoutine理解](https://elvisng.github.io/2020/02/24/golang-routine/)
 
 
 
+### Channel结构
 
-
-
-The buffer size is the number of elements that can be sent to the channel without the send blocking. By default, a channel has a buffer size of 0 (you get this with make(chan int)). This means that every single send will block until another goroutine receives from the channel. A channel of buffer size 1 can hold 1 element until sending blocks, so you'd get
-
- 
+hchan结构体
 
 ```go
-func main(){
+type hchan struct {
+    qcount   uint           // 循环队列中数据数
+    dataqsiz uint           // 循环队列的大小
+    buf      unsafe.Pointer // 指向大小为dataqsize的包含数据元素的数组指针
+    elemsize uint16         // 数据元素的大小
+    closed   uint32         // 代表channel是否关闭   
+    elemtype *_type         // _type代表Go的类型系统，elemtype代表channel中的元素类型
+    sendx    uint           // 发送索引号，初始值为0
+    recvx    uint           // 接收索引号，初始值为0
+    recvq    waitq          // 接收等待队列，存储试图从channel接收数据(<-ch)的阻塞goroutines
+    sendq    waitq          // 发送等待队列，存储试图发送数据(ch<-)到channel的阻塞goroutines
 
-c:=make(chan int)
+    lock mutex              // 加锁能保护hchan的所有字段，包括waitq中sudoq对象
+}
+```
 
-c<-1*;*
+- waitq
 
-c<-2*; //*fatal error: all goroutines are asleep - deadlock!
+waitq用于表达处于阻塞状态的goroutines链表信息，first指向链头goroutine，last指向链尾goroutine
 
-//Chan default size is zero,This means that every single send will block unitl another goroutine receives
+```go
+type waitq struct {
+    first *sudog           
+    last  *sudog
+}
+```
 
-gofunc(){
+- sudug
 
-	for{
+sudog代表的就是一个处于等待列表中的goroutine对象
 
-		n:=<-c*;*
+```go
+type sudog struct {
+    g *g
+    next *sudog
+    prev *sudog
+    elem unsafe.Pointer // data element (may point to stack)
+    c        *hchan // channel
+  ...
+}
+```
 
-		fmt.Printf("%d",n)
+为了更好理解channel的结构，我们通过以下代码来debug查看channel内部
 
+```go
+package main
+
+import "time"
+
+func goroutineA(ch chan int) {
+	ch <- 100
+}
+
+func goroutineB(ch chan int) {
+	ch <- 200
+}
+
+func goroutineC(ch chan int) {
+	ch <- 300
+}
+
+func goroutineD(ch chan int) {
+	ch <- 400
+}
+
+func main() {
+	ch := make(chan int, 4)
+	for i := 0; i < 4; i++ {
+		ch <- i * 10
+	}
+	go goroutineA(ch)
+	go goroutineB(ch)
+	go goroutineC(ch)
+	go goroutineD(ch)
+	// 第一个sleep是为了给上足够的时间让所有goroutine都已启动
+	time.Sleep(time.Millisecond * 500)
+	time.Sleep(time.Second)//      <====debug
+}
+```
+
+channel信息如下：
+
+![image-20210511170435310](../img/in-post/post-golang-channel/channel-struct-demo.png)
+
+* buf里面存储了arr[0,10,20,30]四个元素的数组
+
+* 因为往channel的循环队列塞入了四个元素，所以qcount为4
+* 通过make(chan int,4 )定义的dataqsiz大小也为4ls
+* 因为没有任何send和recv操作所以sendx和revx两个索引都为0
+* goroutineA-D都是发送操作所以recvq为nil、nil，而sendq为A-D goRountine的发送链表的头尾指针
+* 同时可以看到其实goroutine的并发是随机的，sendq头指针为400，尾指针为200
+
+
+
+### channel操作
+
+将channel操作分为四部分：创建、发送、接收和关闭。
+
+#### 创建
+
+创建channel 有两种，一种是带缓冲的channel，一种是不带缓冲的channel
+
+```go
+// 带缓冲
+ch := make(chan int, 4)
+// 不带缓冲
+ch := make(chan int)
+```
+
+创建的底层实现
+
+```go
+func makechan(t *chantype, size int) *hchan {
+	elem := t.elem
+
+	// 发送元素大小限制
+	if elem.size >= 1<<16 {
+		throw("makechan: invalid channel element type")
+	}
+	if hchanSize%maxAlign != 0 || elem.align > maxAlign {
+		throw("makechan: bad alignment")
+	}
+	//判断是否会内存溢出
+	mem, overflow := math.MulUintptr(elem.size, uintptr(size))
+	if overflow || mem > maxAlloc-hchanSize || size < 0 {
+		panic(plainError("makechan: size out of range"))
 	}
 
-}()
+	//为构造的chan对象分配内存
+	var c *hchan
+	switch {
+    //为无缓冲的channel生成channel对象
+	case mem == 0:
+		// Queue or element size is zero.
+		c = (*hchan)(mallocgc(hchanSize, nil, true))
+		// Race detector uses this location for synchronization.
+		c.buf = c.raceaddr()
+    // 元素不包含指针的情况
+	case elem.ptrdata == 0:
+		// Elements do not contain pointers.
+		// Allocate hchan and buf in one call.
+		c = (*hchan)(mallocgc(hchanSize+mem, nil, true))
+		c.buf = add(unsafe.Pointer(c), hchanSize)
+	default:
+		// 元素包含指针
+		c = new(hchan)
+		c.buf = mallocgc(mem, elem, true)
+	}
+	//初始化相关参数
+	c.elemsize = uint16(elem.size)
+	c.elemtype = elem
+	c.dataqsiz = uint(size)
+  //互斥锁初始化
+	lockInit(&c.lock, lockRankHchan)
 
-time.Sleep(time.Millisecond)
-
+	if debugChan {
+		print("makechan: chan=", c, "; elemsize=", elem.size, "; dataqsiz=", size, "\n")
+	}
+	return c
 }
+```
 
-Output:
+#### 发送
 
-fatal error: all goroutines are asleep - deadlock!
+发送过程，存在以下几种情况。
 
+1. **当发送的channel为nil**
 
-//current
-func main() {
-	c := make(chan int)
-	go func(){
-		for{
-			time.Sleep(time.Millisecond)
-			n := <-c;
-			fmt.Printf("%d",n)
-		}
+```go
+var ch chan(int)
+	go func() {
+		ch <- 100
 	}()
-	c <- 1;
-	c <- 2;
+```
 
+```go
+if c == nil {
+    if !block {
+        return false
+    }
+    gopark(nil, nil, waitReasonChanSendNilChan, traceEvGoStop, 2)
+    throw("unreachable")
+}
+```
+
+往一个nil的channel中发送数据时，调用gopark函数将当前执行的goroutine从running态转入waiting态
+
+2. **往已关闭的channel中发送数据**
+
+```go
+ch := make (chan int,4)
+	close(ch)
+	go func() {
+		ch <- 100
+	}()
+```
+
+```go
+		if c.closed != 0 {
+        unlock(&c.lock)
+        panic(plainError("send on closed channel"))
+    }
+```
+
+如果向已关闭的channel中发送数据，会引发panic。
+
+3. **如果已经有阻塞的接收goroutines（即recvq中指向非空），那么数据将被直接发送给接收goroutine。**
+
+```go
+if sg := c.recvq.dequeue(); sg != nil {
+    // Found a waiting receiver. We pass the value we want to send
+    // directly to the receiver, bypassing the channel buffer (if any).
+    send(c, sg, ep, func() { unlock(&c.lock) }, 3)
+    return true
+}
+```
+
+该逻辑的实现代码在send方法和sendDirect中。
+
+```go
+func send(c *hchan, sg *sudog, ep unsafe.Pointer, unlockf func(), skip int) {
+  ... // 省略了竞态代码
+    if sg.elem != nil {
+        sendDirect(c.elemtype, sg, ep)
+        sg.elem = nil
+    }
+    gp := sg.g
+  //解锁在chansend()里面的c.lock
+    unlockf()
+    gp.param = unsafe.Pointer(sg)
+    if sg.releasetime != 0 {
+        sg.releasetime = cputicks()
+    }
+  	//把接收队列的第一个goroutine状态变成runnable
+    goready(gp, skip+1)
 }
 
-output:
-12 
-//using chan default size is zero,This means that every single send will block unitl another goroutine receives
+func sendDirect(t *_type, sg *sudog, src unsafe.Pointer) {
+    dst := sg.elem
+    typeBitsBulkBarrier(t, uintptr(dst), uintptr(src), t.size)
+    //内存src拷贝到goroutine的dst
+    memmove(dst, src, t.size)
+}
+```
+
+4. **对于有缓冲的**channel来说，如果当前缓冲区hchan.buf有可用空间，那么会将数据拷贝至缓冲区
+
+```go
+if c.qcount < c.dataqsiz {
+		//获取指向对应内存区域的指针
+    qp := chanbuf(c, c.sendx)
+    if raceenabled {
+        raceacquire(qp)
+        racerelease(qp)
+    }
+   //内存拷贝
+    typedmemmove(c.elemtype, qp, ep)
+  // 发送索引号+1
+    c.sendx++
+  // 因为存储数据元素的结构是循环队列，所以当当前索引号已经到队末时，将索引号调整到队头
+    if c.sendx == c.dataqsiz {
+        c.sendx = 0
+    }
+  // 当前循环队列中存储元素数+1
+    c.qcount++
+    unlock(&c.lock)
+    return true
+}
+```
+
+5. **有缓冲的channel，当hchan.buf已满；或者无缓冲的channel，当前没有接收的goroutine**
+
+```go
+gp := getg()
+mysg := acquireSudog()
+mysg.releasetime = 0
+if t0 != 0 {
+    mysg.releasetime = -1
+}
+// No stack splits between assigning elem and enqueuing mysg
+// on gp.waiting where copystack can find it.
+mysg.elem = ep
+mysg.waitlink = nil
+mysg.g = gp
+mysg.isSelect = false
+mysg.c = c
+gp.waiting = mysg
+gp.param = nil
+c.sendq.enqueue(mysg)
+gopark(chanparkcommit, unsafe.Pointer(&c.lock), waitReasonChanSend, traceEvGoBlockSend, 2)
+```
+
+通过getg获取当前执行的goroutine。acquireSudog是先获得当前执行goroutine的线程M，再获取M对应的P，最后将P的sudugo缓存队列中的队头sudog取出（详见源码src/runtime/proc.go）。通过c.sendq.enqueue将sudug加入到channel的发送等待列表中，并调用gopark将当前goroutine转为waiting态。
+
+可以看到，当没有接收groutine时，发送的goroutine将被置于sendq的发送队列中。
+
+
+
+#### channel发送小结：
+
+- 发送操作会对hchan加锁。
+- 当recvq中存在等待接收的goroutine时，数据元素将会被直接拷贝给接收goroutine。
+- 当recvq等待队列为空时，会判断hchan.buf是否可用。如果可用，则会将发送的数据拷贝至hchan.buf中。
+- 如果hchan.buf已满，那么将当前发送goroutine置于sendq中排队，并在运行时中挂起。
+- 向已经关闭的channel发送数据，会引发panic。
+
+
+
+#### 接收
+
+channel的接收实现分两种，v :=<-ch对应于chanrecv1，v, ok := <- ch对应于chanrecv2
+
+```
+func chanrecv1(c *hchan, elem unsafe.Pointer) {
+    chanrecv(c, elem, true)
+}
+
+func chanrecv2(c *hchan, elem unsafe.Pointer) (received bool) {
+    _, received = chanrecv(c, elem, true)
+    return
+}
+```
+
+#### channel接收小结：
+
+chanrecv的详细代码此处就不再展示，和chansend逻辑对应，具体处理准则如下。
+
+- 接收操作会对hchan加锁。
+
+- 当sendq中存在等待发送的goroutine时，意味着此时的hchan.buf已满（无缓存的天然已满），分两种情况：
+
+  1. 如果是有缓存的hchan，那么先将缓冲区的数据拷贝给接收goroutine，再将sendq的队头sudog出队，将出队的sudog上的元素拷贝至hchan的缓存区
+
+  2. 如果是无缓存的hchan，那么直接将出队的sudog上的元素拷贝给接收goroutine。
+
+     两种情况的最后都会唤醒出队的sudog上的发送goroutine。
+
+- 当sendq发送队列为空时，会判断hchan.buf是否可用。如果可用，则会将hchan.buf的数据拷贝给接收goroutine。
+
+- 如果hchan.buf不可用，那么将当前接收goroutine置于recvq中排队，并在运行时中挂起。
+
+- 与发送不同的是，当channel关闭时，goroutine还能从channel中获取数据。如果recvq等待列表中有goroutines，那么它们都会被唤醒接收数据。如果hchan.buf中还有未接收的数据，那么goroutine会接收缓冲区中的数据，否则goroutine会获取到元素的零值。
+
+- **注意：在channel中进行的所有元素转移都伴随着内存的拷贝。**
+
+以下是channel关闭之后，接收goroutine的读取代码。
+
+```go
+func main() {
+    ch := make(chan int, 1)
+    ch <- 10
+    close(ch)
+    a, ok := <-ch
+    fmt.Println(a, ok)
+    b, ok := <-ch
+    fmt.Println(b, ok)
+    c := <-ch
+    fmt.Println(c)
+}
+
+//输出如下
+10 true
+0 false  //如果关闭的channel读取会获得其类型的默认值
+0
 ```
 
 
+
+####  关闭
+
+channel的关闭实现代码位于src/go/runtime/chan.go的chansend方法
+
+```go
+func closechan(c *hchan) {
+  // 如果hchan对象为nil，则会引发painc
+    if c == nil {
+        panic(plainError("close of nil channel"))
+    }
+
+  // 对hchan加锁
+    lock(&c.lock)
+  // 不同多次调用close(c chan<- Type)方法，否则会引发painc
+    if c.closed != 0 {
+        unlock(&c.lock)
+        panic(plainError("close of closed channel"))
+    }
+		//一些数据竞态检测
+    if raceenabled {
+        callerpc := getcallerpc()
+        racewritepc(c.raceaddr(), callerpc, funcPC(closechan))
+        racerelease(c.raceaddr())
+    }
+
+  // close标志
+    c.closed = 1
+
+  // gList代表Go的GMP调度的G集合
+    var glist gList
+
+    // 该for循环是为了释放recvq上的所有等待接收sudog
+    for {
+        sg := c.recvq.dequeue()
+        if sg == nil {
+            break
+        }
+        if sg.elem != nil {
+            typedmemclr(c.elemtype, sg.elem)
+            sg.elem = nil
+        }
+        if sg.releasetime != 0 {
+            sg.releasetime = cputicks()
+        }
+        gp := sg.g
+        gp.param = nil
+        if raceenabled {
+            raceacquireg(gp, c.raceaddr())
+        }
+        glist.push(gp)
+    }
+
+    // 该for循环会释放sendq上的所有等待发送sudog
+    for {
+        sg := c.sendq.dequeue()
+        if sg == nil {
+            break
+        }
+        sg.elem = nil
+        if sg.releasetime != 0 {
+            sg.releasetime = cputicks()
+        }
+        gp := sg.g
+        gp.param = nil
+        if raceenabled {
+            raceacquireg(gp, c.raceaddr())
+        }
+        glist.push(gp)
+    }
+  // 释放sendq和recvq之后，hchan释放锁
+    unlock(&c.lock)
+
+  // 将上文中glist中的加入的goroutine取出，让它们均变为runnable（可执行）状态，等待调度器执行
+    // 注意：我们上文中分析过，试图向一个已关闭的channel发送数据，会引发painc。
+  // 所以，如果是释放sendq中的goroutine，它们一旦得到执行将会引发panic。
+    for !glist.empty() {
+        gp := glist.pop()
+        gp.schedlink = 0
+        goready(gp, 3)
+    }
+}
+```
+
+#### channel关闭小结：
+
+- 如果关闭已关闭的channel会引发painc。
+- 对channel关闭后，如果有阻塞的读取或发送goroutines将会被唤醒。读取goroutines会获取到hchan的已接收元素，如果没有，则获取到元素零值；发送goroutine的执行则会引发painc。
+
+
+
+### 总结
+
+channel是Go中并发中很重要的数据类型，所以了解其原理能更使得我们的goRoutine使用得更加高效。如果你要更高效的使用channel，请记下以下几点：
+
+- hchan结构体有锁的保证，对于并发goroutine而言是安全的
+- channel接收、发送数据遵循FIFO（First In First Out）原语
+- channel的数据传递依赖于内存拷贝
+- channel能阻塞（gopark）、唤醒（goready）goroutine
+- 所谓无缓存的channel，它的工作方式就是直接发送goroutine拷贝数据给接收goroutine，而不通过hchan.buf
 

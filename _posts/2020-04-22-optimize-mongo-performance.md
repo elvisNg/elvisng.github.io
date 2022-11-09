@@ -7,7 +7,7 @@ header-style: text
 tags:
   - Mongo
   - Golang
-  - mongoGoDriver：
+  - mongoGoDriver
 ---
 
 
@@ -24,18 +24,18 @@ tags:
 
 1. 前置GATE横向扩容导致刚需流量直接灌入后端登录应用  
 2. 采用了Mongo数据库并不是缓存数据库，数据存储时采用内存到文件映射导致内存飙高  
-3. Mongo过旧采用单节点状态， ，峰值tps几乎已经到达节点上限，同時平均服务器IO已到达100%，随着读写流量的进一步增加，时延抖动严重影响应用的可用性
+3. Mongo过旧采用单节点状态， 峰值tps几乎已经到达节点上限，同時平均服务器IO已到达100%，随着读写流量的进一步增加，时延抖动严重影响应用的可用性
 4. 应用链接采用的是简单的数据库链接模式，随着流量执行数据量超过150万/秒，MongoServer内部的阻塞队列和Dirty率飙高超过20%，内存使用率也超90%，wiredtiger存儲引擎明显跟不上语句执行速度。
 
 
 
 ###### 高峰时的Mongo服务器IO：
 
-![](/img/in-post/optimizemongo/discIo.png)
+![](../img/in-post/optimizemongo/discIo.png)
 
 ###### 高峰时的MongoStat：
 
-![](/img/in-post/optimizemongo/beforemongostat.png)
+![](../img/in-post/optimizemongo/beforemongostat.png)
 
 
 
@@ -77,11 +77,11 @@ tags:
 
   2. 因应用老旧，使用的还是*mongo-go-driver v0.0.3*，不支持多语句执行提交，故升级版本*mongo-go-driver v1.3.2*，批量执行写入和更新，减少数据库请求次数，降低mongo Db网络IO。
 
-     ```
+     ```go
      func DemoMongo()  {
-     	// insert many users
-     	NewUsers := make([]User, 1)
-     	NewUsers = append(NewUsers, User{
+       // insert many users
+       NewUsers := make([]User, 1)
+       NewUsers = append(NewUsers, User{
      		Username: "userB",
      		Psw:      "123",
      	}, User{
@@ -96,11 +96,13 @@ tags:
      }
      ```
 
+     
+
   3. Mongodb客户端连接优化（采用mongo连接池优化，减少交互与网络IO，增加Socket网络超时优化程序）
 
      
 
-     ```
+     ```go
      func initMongo() (err error) {
      	log.Printf("initMongo:%#v\n", Conf.DB)
      	hosts := Conf.DB.Mongo
@@ -153,11 +155,14 @@ tags:
      }
      ```
 
+     
+
+
 #### Mongodb配置优化 （网络IO复用，网络IO和磁盘IO做分离）
 
  >为什么要做网络IO复用分离
 
-1. Mongo在高并发的情况下，瞬间就会创建大量的线程，例如线上的这个单机，连接数会瞬间增加到上千个，也就是操作系统需要瞬间创建上千个线程，这样系统load负载就会很高。
+1. Mongo在高并发的情况下，q瞬间就会创建大量的线程，例如线上的这个单机，连接数会瞬间增加到上千个，也就是操作系统需要瞬间创建上千个线程，这样系统load负载就会很高。
 
 
 2. 此外，当链接请求处理完，进入流量低峰期的时候，客户端连接池回收链接，这时候mongodb服务端就需要销毁线程，这样进一步加剧了系统负载，同时进一步增加了数据库的抖动，特别是在PHP这种短链接业务中更加明显，频繁的创建线程销毁线程造成系统高负债。
@@ -172,17 +177,16 @@ tags:
 
 > 优化方案结构如下图：
 
-![](/img/in-post/optimizemongo/adaptivepool.png)
+![img](../img/in-post/optimizemongo/adaptivepool.png)
 
 ###### adaptive打开后NetWorker处理的线程效率：
 
-![](/img/in-post/optimizemongo/networkstats.png)
+![img](../img/in-post/optimizemongo/networkstats.png)
 
 
 2. 增加热数据缓存，减少重复IO。
    
 	>根据数据存量计算出日活数据大概在1500万左右，Mongo数据的压缩比大概到40%-50%,就算出热数据大概在30G，加上18G索引数据，总缓存大概占用78G，32G缓存调整到96G，热数据缓存减少重复的磁盘IO
-   
 ##### 以上两点CS端模型优化前后MongoIO对比：
 
 CS端模型优化是直接从调用层面降低调用与连接数，进而数据库与服务器的压力，使得服务器IO与数据库链接降低数倍。
@@ -191,11 +195,11 @@ CS端模型优化是直接从调用层面降低调用与连接数，进而数据
 
 ###### 优化前-MongoStat：
 
-![](/img/in-post/optimizemongo/beforemongostat.png)
+![img](../img/in-post/optimizemongo/beforemongostat.png)
 
 ###### 优化后的MongoStat：
 
-![](/img/in-post/optimizemongo/aftermongostat.png)
+![img](../img/in-post/optimizemongo/aftermongostat.png)
 
 ##### 数据库服务器优化前后服务器性能对比：
 
@@ -204,11 +208,11 @@ CS端模型优化是直接从调用层面降低调用与连接数，进而数据
 
 ###### 服务器磁盘IO对比图：
 
-![](/img/in-post/optimizemongo/merchineio.png)
+![img](../img/in-post/optimizemongo/merchineio.png)
 
 ###### 服务器CPU对比图：
 
-![](/img/in-post/optimizemongo/merchinecpu.png)
+![img](../img/in-post/optimizemongo/merchinecpu.png)
 
 > 以上为CS端优化情况，下面是底层存储引擎的优化。
 
@@ -216,7 +220,7 @@ CS端模型优化是直接从调用层面降低调用与连接数，进而数据
 
 谈到存储引擎优化，我们先来了解一下Mongo的读写流程,如下图：
 
-![](/img/in-post/optimizemongo/mongorwflow.png)
+![img](../img/in-post/optimizemongo/mongorwflow.png)
 
 >WriteFlow
 * Traverse btree,find page to write
@@ -235,12 +239,11 @@ CS端模型优化是直接从调用层面降低调用与连接数，进而数据
   * If there's an insert object 
     *If there's a visible update:exact match
 * Use the on page object (which may have an associated update object) 
-  
 #### dirty数据的形成:
 
 操作内存写入的最少单位是page，下图以page为单位展示，data是怎么变成used和dirty的。
 
-![](/img/in-post/optimizemongo/data_dirty&clean.png)
+![img](../img/in-post/optimizemongo/data_dirty&clean.png)
 > 从上图可以看出数据变成dirty是以下两个方面的数据：
 1. 在checkpoint之前所有修改过的page数据都会标注为dirty
 2. 在checkpoint后，若此次刷盘的checkpoint存在uncommitted的数据那此次checkpoint的数据在缓存中就会被标注成dirty
@@ -253,7 +256,7 @@ wiredtiger不例外的也是遵循了LRU原理来淘汰数据，过wiredtiger的
 
 具体evict的流程如下：
 
-![](/img/in-post/optimizemongo/evictforce.png)
+![img](../img/in-post/optimizemongo/evictforce.png)
 
 1. 一个evict线程时间片内阶段性的去扫描各个btree,把满足淘汰条件的page添加到evictqueue中。
    
@@ -299,16 +302,16 @@ eviction_dirty_trigger|20|	当 cache dirty 超过 eviction_dirty_trigger, 用户
    1. 降低eviction_target与 eviction_dirty_target使得数据尽早刷盘
    2. 增大eviction_trigger与eviction_dirty_trigger使得用户线程减少参与evict
    3. 增大evict.threads_min（淘汰线程数）
-   
+
  	* eviction_target: 75%
-
-	* eviction_trigger：97%
-
-    * eviction_dirty_target: %3
-
-    * eviction_dirty_trigger：25%
-
-	* evict.threads_min：12
+ 	
+ 	* eviction_trigger：97%
+ 	
+ 	* eviction_dirty_target: %3
+ 	
+ 	* eviction_dirty_trigger：25%
+ 	
+ 	* evict.threads_min：12
 
 3.存储引擎checkpoint优化調整
 
@@ -327,7 +330,7 @@ checkpoint調整後的值如下:
 
 #### WiredTiger优化后磁盘IO：
 
-![](/img/in-post/optimizemongo/wiredtigerafterio.png)
+![img](../img/in-post/optimizemongo/wiredtigerafterio.png)
 
 從上图可以看出，存储引擎优化后IO由高企100%缓解到50%以下，时间延迟进一步降低並处于平穩，從平均80ms到平均20ms左右。
 
